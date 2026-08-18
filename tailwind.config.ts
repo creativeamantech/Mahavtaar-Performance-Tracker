@@ -24,6 +24,14 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        
+        surface: {
+          0: "hsl(var(--surface-0))",
+          1: "hsl(var(--surface-1))",
+          2: "hsl(var(--surface-2))",
+          3: "hsl(var(--surface-3))",
+        },
+
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -43,12 +51,10 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
-          dim: "hsl(var(--accent-dim))",
         },
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
-          dim: "hsl(var(--success-dim))",
         },
         info: {
           DEFAULT: "hsl(var(--info))",
@@ -58,10 +64,6 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
-        danger: {
-          dim: "hsl(var(--danger-dim))",
-        },
-        "bg-hover": "hsl(var(--bg-hover))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -70,21 +72,31 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        
+        bucket: {
+          current: "hsl(var(--bucket-current))",
+          "1-30": "hsl(var(--bucket-1-30))",
+          "31-60": "hsl(var(--bucket-31-60))",
+          "61-90": "hsl(var(--bucket-61-90))",
+          npa: "hsl(var(--bucket-npa))",
         },
+        disp: {
+          ptp: "hsl(var(--disp-ptp))",
+          rnr: "hsl(var(--disp-rnr))",
+          rtp: "hsl(var(--disp-rtp))",
+          settled: "hsl(var(--disp-settled))",
+          paid: "hsl(var(--disp-paid))",
+        }
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xl: "var(--radius-xl)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius-md)",
+        sm: "var(--radius-sm)",
+      },
+      boxShadow: {
+        glass: "0 8px 32px rgba(0, 0, 0, 0.4)",
+        "glass-hover": "0 8px 32px rgba(245, 158, 11, 0.05)",
       },
       keyframes: {
         "accordion-down": {

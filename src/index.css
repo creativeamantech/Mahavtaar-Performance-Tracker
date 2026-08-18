@@ -4,45 +4,76 @@
 
 @layer base {
   :root {
-    --background: 217 68% 6%;
+    /* Base Colors - Deep Field System */
+    --background: 218 68% 6%;      /* #050D1A */
     --foreground: 214 32% 91%;
-    --card: 217 68% 8%;
+    
+    --surface-0: 218 68% 6%;       /* #050D1A */
+    --surface-1: 217 61% 10%;      /* #0A1629 */
+    --surface-2: 217 56% 15%;      /* #11213D */
+    --surface-3: 217 56% 19%;      /* #152A4A */
+    
+    --card: 217 61% 10%;
     --card-foreground: 214 32% 91%;
-    --popover: 217 68% 8%;
+    
+    --popover: 217 56% 19%;
     --popover-foreground: 214 32% 91%;
-    --primary: 38 92% 50%;
+    
+    /* Mahavtaar Signature Accent (Amber/Gold) */
+    --primary: 38 92% 50%;         /* #F59E0B equivalent */
     --primary-foreground: 0 0% 0%;
-    --secondary: 215 28% 17%;
+    
+    --secondary: 217 56% 15%;
     --secondary-foreground: 214 32% 91%;
-    --muted: 215 28% 17%;
-    --muted-foreground: 215 16% 47%;
+    
+    --muted: 217 56% 15%;
+    --muted-foreground: 215 16% 55%;
+    
     --accent: 38 92% 50%;
     --accent-foreground: 0 0% 0%;
+    
+    /* Semantic Status Colors */
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
+    
     --success: 160 84% 39%;
     --success-foreground: 0 0% 0%;
+    
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
+    
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
-    --border: 217 30% 14%;
-    --border-light: 217 27% 20%;
-    --input: 217 68% 8%;
+    
+    --border: 217 30% 20%;
+    --border-light: 217 27% 25%;
+    --input: 217 61% 10%;
     --ring: 38 92% 50%;
-    --radius: 0.5rem;
-    --bg-hover: 217 30% 12%;
-    --sidebar-background: 217 68% 6%;
-    --sidebar-foreground: 214 32% 91%;
-    --sidebar-primary: 38 92% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 217 30% 12%;
-    --sidebar-accent-foreground: 38 92% 50%;
-    --sidebar-border: 217 30% 14%;
-    --sidebar-ring: 38 92% 50%;
-    --accent-dim: 30 79% 27%;
-    --success-dim: 163 86% 16%;
-    --danger-dim: 0 63% 31%;
+    
+    /* Radii Scale */
+    --radius-sm: 0.375rem; /* 6px */
+    --radius-md: 0.5rem;   /* 8px */
+    --radius-lg: 0.75rem;  /* 12px */
+    --radius-xl: 1rem;     /* 16px */
+    --radius: var(--radius-lg); /* Default to LG for cards */
+    
+    /* Glass System */
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.15);
+    
+    /* Bucket Colors */
+    --bucket-current: 160 84% 39%;
+    --bucket-1-30: 38 92% 50%;
+    --bucket-31-60: 24 95% 53%;
+    --bucket-61-90: 346 87% 60%;
+    --bucket-npa: 0 84% 60%;
+    
+    /* Disposition Colors */
+    --disp-ptp: 217 91% 60%;
+    --disp-rnr: 215 16% 55%;
+    --disp-rtp: 24 95% 53%;
+    --disp-settled: 160 84% 39%;
+    --disp-paid: 160 84% 39%;
   }
 }
 
@@ -53,6 +84,11 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'DM Mono', monospace;
+    background-color: hsl(var(--surface-0));
+    background-image: 
+      radial-gradient(circle at 15% 0%, rgba(245, 158, 11, 0.03) 0%, transparent 40%),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+    background-attachment: fixed;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Syne', sans-serif;
@@ -66,6 +102,23 @@
   .font-data {
     font-family: 'DM Mono', monospace;
   }
+  
+  /* Glassmorphism Utilities */
+  .glass-panel {
+    @apply bg-surface-1/80 backdrop-blur-md border border-[rgba(255,255,255,0.08)] shadow-[0_8px_32px_rgba(0,0,0,0.4)];
+  }
+  
+  .glass-panel-hover {
+    @apply hover:bg-surface-2/90 hover:border-[rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(245,158,11,0.05)] transition-all duration-200 ease-out;
+  }
+  
+  .glass-card {
+    @apply bg-surface-1/60 backdrop-blur-md border border-[rgba(255,255,255,0.06)] shadow-[0_4px_24px_rgba(0,0,0,0.2)] rounded-xl;
+  }
+  
+  .glass-input {
+    @apply bg-surface-2/50 backdrop-blur-sm border border-[rgba(255,255,255,0.1)] rounded-md focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all;
+  }
 }
 
 @layer utilities {
@@ -76,12 +129,12 @@
   .shimmer {
     background: linear-gradient(
       90deg,
-      hsl(var(--border)) 0%,
-      hsl(var(--border-light)) 50%,
-      hsl(var(--border)) 100%
+      rgba(255,255,255,0.03) 0%,
+      rgba(255,255,255,0.08) 50%,
+      rgba(255,255,255,0.03) 100%
     );
     background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
+    animation: shimmer 2s ease-in-out infinite;
   }
   @keyframes shimmer {
     0% { background-position: 200% 0; }

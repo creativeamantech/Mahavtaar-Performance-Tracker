@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Hexagon } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -27,60 +27,80 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary font-heading text-lg font-bold text-primary-foreground">
-            LC
+    <div className="flex min-h-screen items-center justify-center relative overflow-hidden bg-background">
+      {/* Deep Field Elements */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[150px] pointer-events-none" />
+      
+      <div className="w-full max-w-[380px] z-10 p-4">
+        <div className="mb-8 text-center flex flex-col items-center">
+          <div className="relative flex h-16 w-16 items-center justify-center text-primary mb-6">
+            <Hexagon className="absolute inset-0 h-full w-full fill-primary/10 stroke-primary stroke-[1]" />
+            <span className="z-10 font-heading text-2xl font-bold text-primary">M</span>
           </div>
-          <h1 className="font-heading text-2xl font-extrabold uppercase tracking-wide text-primary">
-            Loan Collection Tracker
+          <h1 className="font-heading text-3xl font-bold uppercase tracking-[0.15em] text-primary mb-2">
+            Mahavtaar
           </h1>
-          <p className="mt-1 font-data text-xs text-muted-foreground">EMI · Settlement · Rollback Management</p>
+          <h2 className="font-heading text-sm font-medium tracking-[0.3em] text-muted-foreground uppercase">
+            Ledger
+          </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-lg border border-border bg-card p-6">
-          <div className="mb-4">
-            <label className="mb-1 block font-data text-[10px] uppercase tracking-[2px] text-muted-foreground">Email</label>
+        <form onSubmit={handleSubmit} className="glass-panel rounded-2xl p-8 relative overflow-hidden">
+          {/* Subtle top amber border highlight */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+          
+          <div className="mb-5">
+            <label className="mb-1.5 block font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Email</label>
             <input
               type="email"
               autoFocus
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="h-8 w-full rounded-md border border-border bg-input px-3 font-data text-xs text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
+              className="h-10 w-full glass-input px-3 font-data text-sm text-foreground outline-none"
               placeholder="admin@company.com"
             />
           </div>
-          <div className="mb-4">
-            <label className="mb-1 block font-data text-[10px] uppercase tracking-[2px] text-muted-foreground">Password</label>
+
+          <div className="mb-6">
+            <label className="mb-1.5 block font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Password</label>
             <div className="relative">
               <input
                 type={showPass ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="h-8 w-full rounded-md border border-border bg-input px-3 pr-8 font-data text-xs text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
+                className="h-10 w-full glass-input px-3 pr-10 font-data text-sm text-foreground outline-none"
                 placeholder="••••••••"
               />
               <button
                 type="button"
                 onClick={() => setShowPass(s => !s)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
               >
-                {showPass ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
-          {error && <div className="mb-3 rounded bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</div>}
+
+          {error && (
+            <div className="mb-5 rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2.5 text-xs text-destructive text-center font-data">
+              {error}
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
-            className="flex h-[34px] w-full items-center justify-center rounded-md bg-primary font-heading text-xs font-bold uppercase tracking-wider text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="flex h-11 w-full items-center justify-center rounded-lg bg-primary font-heading text-[11px] font-bold uppercase tracking-[0.2em] text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] disabled:opacity-50 disabled:hover:shadow-none"
           >
-            {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" /> : 'Sign In'}
+            {loading ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" /> : 'Authenticate'}
           </button>
-          <p className="mt-3 text-center font-data text-[10px] text-muted-foreground">
-            Demo: admin@company.com / Admin@123
-          </p>
+          
+          <div className="mt-6 text-center">
+            <p className="font-data text-[10px] text-muted-foreground/60">
+              Demo access: admin@company.com / Admin@123
+            </p>
+          </div>
         </form>
       </div>
     </div>

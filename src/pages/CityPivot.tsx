@@ -135,31 +135,31 @@ export default function CityPivot() {
         </button>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 glass-panel p-4 rounded-xl">
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">State</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
           <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger><SelectValue placeholder="All States" /></SelectTrigger>
-            <SelectContent>
-              {availableStates.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All States" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">
+              {availableStates.map(s => <SelectItem key={s} value={s} className="hover:bg-primary/20 hover:text-primary">{s}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bucket</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Bucket</label>
           <Select value={selectedBucket} onValueChange={setSelectedBucket}>
-            <SelectTrigger><SelectValue placeholder="All Buckets" /></SelectTrigger>
-            <SelectContent>
-              {availableBuckets.map(b => <SelectItem key={b} value={b}>{b === 'All' ? 'All' : `Bucket ${b}`}</SelectItem>)}
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Buckets" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">
+              {availableBuckets.map(b => <SelectItem key={b} value={b} className="hover:bg-primary/20 hover:text-primary">{b === 'All' ? 'All' : `Bucket ${b}`}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">City</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">City</label>
           <Select value={selectedCity} onValueChange={setSelectedCity}>
-            <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
-            <SelectContent>
-              {availableCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Cities" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">
+              {availableCities.map(c => <SelectItem key={c} value={c} className="hover:bg-primary/20 hover:text-primary">{c}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>

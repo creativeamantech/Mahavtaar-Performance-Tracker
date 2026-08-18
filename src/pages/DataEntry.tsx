@@ -258,37 +258,38 @@ export default function DataEntry() {
       ]} />
 
       {/* Filters */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+      <div className="mb-4 flex flex-wrap items-center gap-3 glass-panel p-3 rounded-lg">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search ID, city, executive..."
-            className="h-8 w-56 rounded-md border border-border bg-input pl-7 pr-3 font-data text-xs outline-none focus:border-primary"
+            className="h-9 w-full glass-input pl-9 pr-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary"
           />
         </div>
-        <select value={bucketFilter} onChange={e => setBucketFilter(e.target.value)} className="h-8 rounded-md border border-border bg-input px-2 font-data text-xs outline-none focus:border-primary">
+        <select value={bucketFilter} onChange={e => setBucketFilter(e.target.value)} className="h-9 glass-input px-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
           <option value="all">All Buckets</option>
           {[1, 2, 3, 4, 5].map(b => <option key={b} value={b}>Bucket {b}</option>)}
         </select>
-        <select value={paidFilter} onChange={e => setPaidFilter(e.target.value)} className="h-8 rounded-md border border-border bg-input px-2 font-data text-xs outline-none focus:border-primary">
+        <select value={paidFilter} onChange={e => setPaidFilter(e.target.value)} className="h-9 glass-input px-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
           <option value="all">All Status</option>
           <option value="paid">Paid</option>
           <option value="unpaid">Unpaid</option>
         </select>
-        <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="h-8 rounded-md border border-border bg-input px-2 font-data text-xs outline-none focus:border-primary">
+        <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="h-9 glass-input px-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
           <option value="all">All Cities</option>
           {cities.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
+
         {(search || bucketFilter !== 'all' || paidFilter !== 'all' || cityFilter !== 'all') && (
           <button onClick={() => { setSearch(''); setBucketFilter('all'); setPaidFilter('all'); setCityFilter('all'); }}
-            className="flex h-8 items-center gap-1 rounded-md border border-border px-2 font-data text-xs text-muted-foreground hover:text-foreground">
-            <X className="h-3 w-3" /> Reset
+            className="flex h-9 items-center gap-1.5 rounded-md border border-[rgba(255,255,255,0.1)] bg-white/5 px-3 font-data text-xs text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors">
+            <X className="h-3.5 w-3.5" /> Reset
           </button>
         )}
-        <span className="ml-auto font-data text-xs text-muted-foreground">
-          Showing {filteredRecords.length} of {records.length} records
+        <span className="ml-auto font-data text-xs text-primary font-bold">
+          Showing {filteredRecords.length} of {records.length}
         </span>
       </div>
 
@@ -309,8 +310,8 @@ export default function DataEntry() {
 function EditableCell({ value, source, onSave }: { value: number; source?: string; onSave: (val: string) => void }) {
   const [editing, setEditing] = useState(false);
   const [val, setVal] = useState(String(value || 0));
-
-  const borderClass = source === 'MANUAL' ? 'border-primary' : source === 'PAID_FILE' ? 'border-success' : source === 'CORRECTED' ? 'border-info' : 'border-border';
+  
+  const borderClass = source === 'MANUAL' ? 'border-primary text-primary' : source === 'PAID_FILE' ? 'border-success text-success' : source === 'CORRECTED' ? 'border-info text-info' : 'border-[rgba(255,255,255,0.1)] text-muted-foreground hover:border-primary/50 hover:text-foreground';
   const icon = source === 'MANUAL' ? '🔒' : source === 'PAID_FILE' ? '📁' : source === 'CORRECTED' ? '✓' : '';
 
   if (editing) {
@@ -321,13 +322,14 @@ function EditableCell({ value, source, onSave }: { value: number; source?: strin
         onChange={e => setVal(e.target.value)}
         onBlur={() => { setEditing(false); onSave(val); }}
         onKeyDown={e => { if (e.key === 'Enter') { setEditing(false); onSave(val); } }}
-        className={`h-6 w-20 rounded border ${borderClass} bg-input px-1 text-right font-data text-xs outline-none focus:border-primary`}
+        className="h-6 w-20 rounded border border-primary bg-[rgba(255,255,255,0.05)] px-1 text-right font-data text-xs text-foreground outline-none shadow-[0_0_10px_rgba(245,158,11,0.15)]"
       />
     );
   }
+
   return (
-    <span onClick={() => setEditing(true)} className={`inline-flex cursor-pointer items-center gap-0.5 rounded border ${borderClass} bg-input/50 px-1.5 py-0.5 text-right`}>
-      {fmtCur(value)} {icon && <span className="text-[9px]">{icon}</span>}
+    <span onClick={() => setEditing(true)} className={`inline-flex cursor-pointer items-center gap-1 rounded border bg-[rgba(255,255,255,0.02)] px-1.5 py-0.5 text-right transition-colors ${borderClass}`}>
+      {fmtCur(value)} {icon && <span className="text-[9px] opacity-80">{icon}</span>}
     </span>
   );
 }

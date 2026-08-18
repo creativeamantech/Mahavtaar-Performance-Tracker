@@ -1,4 +1,5 @@
 import { calculateRow } from './calculations';
+import { resolveTargetPct } from './targets';
 
 export function buildCityPivot(records: any[], targets: Record<string, number> = {}) {
   const map: Record<string, any> = {};
@@ -6,7 +7,7 @@ export function buildCityPivot(records: any[], targets: Record<string, number> =
     const c = calculateRow(r);
     const city = (r.city || r.City || 'UNKNOWN').toUpperCase();
     const state = (r.state || r.State || 'UNKNOWN').toUpperCase();
-    const bkt = r.bom_bkt || 'UNKNOWN';
+    
     if (!map[city]) map[city] = { city, state, collection: 0, count: 0, totalPOS: 0, paid: 0, paidPOS: 0, rollbackPOS: 0, targetPOS: 0 };
     
     const posVal = Number(r.principal_outstanding) || 0;
@@ -17,12 +18,7 @@ export function buildCityPivot(records: any[], targets: Record<string, number> =
     map[city].paidPOS += c.mainPaidPOS || 0;
     map[city].rollbackPOS += c.rollbackPOS || 0;
 
-    const xPct = targets[`CITY__${city}__BKT__${bkt}`]
-              ?? targets[`STATE__${state}__BKT__${bkt}`]
-              ?? targets[`CITY__${city}`]
-              ?? targets[`STATE__${state}`]
-              ?? targets[state]
-              ?? 0;
+    const xPct = resolveTargetPct(targets, { city: r.city || r.City, state: r.state || r.State, bkt: r.bom_bkt });
     
     map[city].targetPOS += (posVal * xPct) / 100;
   });
@@ -41,8 +37,6 @@ export function buildTeamPivot(records: any[], targets: Record<string, number> =
   records.forEach(r => {
     const c = calculateRow(r);
     const exec = r.executive_name || r['Executive Name'] || 'UNKNOWN';
-    const city = (r.city || r.City || 'UNKNOWN').toUpperCase();
-    const state = (r.state || r.State || 'UNKNOWN').toUpperCase();
     const bkt = r.bom_bkt || 'UNKNOWN';
     
     const key = `${bkt}__${exec}`;
@@ -60,12 +54,7 @@ export function buildTeamPivot(records: any[], targets: Record<string, number> =
       map[key].posPaidOnlyPOS += posVal;
     }
 
-    const xPct = targets[`CITY__${city}__BKT__${bkt}`]
-              ?? targets[`STATE__${state}__BKT__${bkt}`]
-              ?? targets[`CITY__${city}`]
-              ?? targets[`STATE__${state}`]
-              ?? targets[state]
-              ?? 0;
+    const xPct = resolveTargetPct(targets, { city: r.city || r.City, state: r.state || r.State, bkt: r.bom_bkt });
               
     map[key].targetPOS += (posVal * xPct) / 100;
   });
@@ -86,9 +75,7 @@ export function buildCrossTab(records: any[], targets: Record<string, number> = 
   records.forEach(r => {
     const c = calculateRow(r);
     const city = (r.city || r.City || '').toUpperCase();
-    const state = (r.state || r.State || 'UNKNOWN').toUpperCase();
     const exec = r.executive_name || r['Executive Name'] || 'UNKNOWN';
-    const bkt = r.bom_bkt || 'UNKNOWN';
     
     if (!matrix[city]) matrix[city] = {};
     if (!matrix[city][exec]) matrix[city][exec] = { paidPOS: 0, totalPOS: 0, targetPOS: 0, target: 0 };
@@ -97,12 +84,7 @@ export function buildCrossTab(records: any[], targets: Record<string, number> = 
     matrix[city][exec].paidPOS += c.teamPaidPOS || 0;
     matrix[city][exec].totalPOS += posVal;
 
-    const xPct = targets[`CITY__${city}__BKT__${bkt}`]
-              ?? targets[`STATE__${state}__BKT__${bkt}`]
-              ?? targets[`CITY__${city}`]
-              ?? targets[`STATE__${state}`]
-              ?? targets[state]
-              ?? 0;
+    const xPct = resolveTargetPct(targets, { city: r.city || r.City, state: r.state || r.State, bkt: r.bom_bkt });
               
     matrix[city][exec].targetPOS += (posVal * xPct) / 100;
   });

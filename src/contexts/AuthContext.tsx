@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, Role, DEFAULT_PERMISSIONS } from '../constants/permissions';
+import { db } from '../lib/db';
 
 interface AuthContextType {
   user: User | null;
@@ -9,9 +10,9 @@ interface AuthContextType {
   hasPermission: (view: string) => boolean;
   isExecutive: () => boolean;
   users: User[];
-  addUser: (u: Omit<User, 'id'>) => void;
-  updateUser: (id: string, data: Partial<User>) => void;
-  deleteUser: (id: string) => void;
+  addUser: (u: Omit<User, 'id'>) => Promise<void>;
+  updateUser: (id: string, data: Partial<User>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -23,18 +24,54 @@ const MOCK_USERS: User[] = [
   { id: '4', name: 'Viewer User', email: 'viewer@company.com', role: 'VIEWER', permissions: { views: DEFAULT_PERMISSIONS.VIEWER } },
 ];
 
+// Browser-local demo-grade auth. Hash function to avoid plaintext password storage.
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading] = useState(false);
-  const [users, setUsers] = useState<User[]>(MOCK_USERS);
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    async function initDb() {
+      try {
+        const count = await db.users.count();
+        if (count === 0) {
+          const defaultPasswordHash = await hashPassword('Admin@123');
+          const seedUsers = MOCK_USERS.map(u => ({ ...u, passwordHash: defaultPasswordHash }));
+          await db.users.bulkPut(seedUsers);
+        }
+        const dbUsers = await db.users.toArray();
+        setUsers(dbUsers.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role as Role, permissions: u.permissions })));
+      } catch (err) {
+        console.error("Failed to init users DB", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    initDb();
+  }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
-    const found = users.find(u => u.email === email);
-    if (!found || password !== 'Admin@123') {
+    const found = await db.users.where('email').equals(email).first();
+    if (!found) {
       throw new Error('Invalid credentials');
     }
-    setUser(found);
-    return found;
+    
+    const inputHash = await hashPassword(password);
+    if (found.passwordHash !== inputHash) {
+      throw new Error('Invalid credentials');
+    }
+    
+    const safeUser: User = { id: found.id, name: found.name, email: found.email, role: found.role as Role, permissions: found.permissions };
+    setUser(safeUser);
+    return safeUser;
   };
 
   const logout = () => setUser(null);
@@ -47,16 +84,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isExecutive = () => user?.role === 'EXECUTIVE';
 
-  const addUser = (u: Omit<User, 'id'>) => {
-    setUsers(prev => [...prev, { ...u, id: crypto.randomUUID() }]);
+  const addUser = async (u: Omit<User, 'id'>) => {
+    const id = crypto.randomUUID();
+    const passwordHash = await hashPassword('Admin@123'); // Default password for new users
+    const newUser = { ...u, id };
+    
+    setUsers(prev => [...prev, newUser]);
+    await db.users.put({ ...newUser, passwordHash });
   };
 
-  const updateUser = (id: string, data: Partial<User>) => {
+  const updateUser = async (id: string, data: Partial<User>) => {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, ...data } : u));
+    const existing = await db.users.get(id);
+    if (existing) {
+      await db.users.update(id, { ...existing, ...data });
+    }
   };
 
-  const deleteUser = (id: string) => {
+  const deleteUser = async (id: string) => {
     setUsers(prev => prev.filter(u => u.id !== id));
+    await db.users.delete(id);
   };
 
   return (

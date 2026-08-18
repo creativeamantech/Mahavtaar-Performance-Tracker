@@ -28,15 +28,15 @@ export function UploadZone({ title, accept = '.xlsx,.xls,.csv', onFileSelect, la
   }, [onFileSelect]);
 
   return (
-    <div className="rounded-lg border border-border bg-card p-5">
-      <h3 className="mb-3 font-heading text-sm font-bold uppercase tracking-wider">{title}</h3>
+    <div className="glass-panel p-6 rounded-xl">
+      <h3 className="mb-4 font-heading text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{title}</h3>
       <div
         onClick={() => inputRef.current?.click()}
         onDragOver={e => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed p-6 transition-colors ${
-          dragging ? 'border-primary bg-primary/5' : error ? 'border-destructive' : 'border-border hover:border-muted-foreground'
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-all ${
+          dragging ? 'border-primary bg-primary/10 shadow-[0_0_30px_rgba(245,158,11,0.1)]' : error ? 'border-destructive bg-destructive/10' : 'border-[rgba(255,255,255,0.1)] bg-[rgba(255,255,255,0.02)] hover:border-primary/50 hover:bg-[rgba(255,255,255,0.04)]'
         }`}
       >
         <input ref={inputRef} type="file" accept={accept} onChange={handleChange} className="hidden" />

@@ -136,64 +136,60 @@ export default function CityTeamMatrix() {
             <Download className="h-3.5 w-3.5" /> Export
           </button>
         </div>
-      </div>
-
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-5">
+      </div>      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-5 glass-panel p-4 rounded-xl">
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">State</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
           <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger><SelectValue placeholder="All States" /></SelectTrigger>
-            <SelectContent>{availableStates.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All States" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">{availableStates.map(v => <SelectItem key={v} value={v} className="hover:bg-primary/20 hover:text-primary">{v}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">City</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">City</label>
           <Select value={selectedCity} onValueChange={setSelectedCity}>
-            <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
-            <SelectContent>{availableCities.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Cities" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">{availableCities.map(v => <SelectItem key={v} value={v} className="hover:bg-primary/20 hover:text-primary">{v}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bucket</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Bucket</label>
           <Select value={selectedBucket} onValueChange={setSelectedBucket}>
-            <SelectTrigger><SelectValue placeholder="All Buckets" /></SelectTrigger>
-            <SelectContent>{availableBuckets.map(v => <SelectItem key={v} value={v}>{v === 'All' ? 'All' : `Bucket ${v}`}</SelectItem>)}</SelectContent>
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Buckets" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">{availableBuckets.map(v => <SelectItem key={v} value={v} className="hover:bg-primary/20 hover:text-primary">{v === 'All' ? 'All' : `Bucket ${v}`}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">Executive</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Executive</label>
           <Select value={selectedExec} onValueChange={setSelectedExec}>
-            <SelectTrigger><SelectValue placeholder="All Execs" /></SelectTrigger>
-            <SelectContent>{availableExecs.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Execs" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">{availableExecs.map(v => <SelectItem key={v} value={v} className="hover:bg-primary/20 hover:text-primary">{v}</SelectItem>)}</SelectContent>
           </Select>
         </div>
         <div>
-          <label className="mb-1.5 block font-heading text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alloc Date</label>
+          <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Alloc Date</label>
           <Select value={selectedAllocDate} onValueChange={setSelectedAllocDate}>
-            <SelectTrigger><SelectValue placeholder="All Dates" /></SelectTrigger>
-            <SelectContent>{availableAllocDates.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}</SelectContent>
+            <SelectTrigger className="h-10 glass-input px-3 font-data text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Dates" /></SelectTrigger>
+            <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.08)] text-foreground">{availableAllocDates.map(v => <SelectItem key={v} value={v} className="hover:bg-primary/20 hover:text-primary">{v}</SelectItem>)}</SelectContent>
           </Select>
         </div>
       </div>
-
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
         <StatCard label="Filtered Total POS" value={fmtCur(overall.totalPOS)} accentColor="info" icon={<Shield className="h-3.5 w-3.5 text-info" />} />
         <StatCard label="Filtered Paid POS" value={fmtCur(overall.paidPOS)} accentColor="success" icon={<Target className="h-3.5 w-3.5 text-success" />} />
         <StatCard label="Filtered Prov DAC" value={fmtCur(overall.totalProvDac)} subLabel="Unconfirmed" accentColor="destructive" icon={<PieChart className="h-3.5 w-3.5 text-destructive" />} />
         <StatCard label="Filtered Team Paid %" value={fmtPct(overall.pct)} subLabel={`${finalRecords.length} records matched`} accentColor="primary" icon={<PieChart className="h-3.5 w-3.5 text-primary" />} />
       </div>
-
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="glass-panel overflow-hidden rounded-xl">
         <div className="overflow-x-auto scrollbar-thin">
           <table className="w-full font-data text-xs">
             <thead>
-              <tr className="border-b border-border bg-card">
-                <th className="sticky left-0 z-10 bg-card px-3 py-2.5 text-left font-medium text-muted-foreground">City</th>
+              <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+                <th className="sticky left-0 z-10 bg-surface-1 px-4 py-3 text-left font-medium text-muted-foreground uppercase tracking-wider text-[10px]">City</th>
                 {execs.map(exec => (
-                  <th key={exec} className="px-3 py-2.5 text-right font-medium text-muted-foreground">{exec}</th>
+                  <th key={exec} className="px-4 py-3 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px] whitespace-nowrap">{exec}</th>
                 ))}
-                <th className="px-3 py-2.5 text-right font-bold text-foreground">Grand Total %</th>
-                <th className="px-3 py-2.5 text-right font-bold text-muted-foreground">Needed POS</th>
+                <th className="px-4 py-3 text-right font-bold text-foreground uppercase tracking-wider text-[10px]">Grand Total %</th>
+                <th className="px-4 py-3 text-right font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Needed POS</th>
               </tr>
             </thead>
             <tbody>
@@ -210,22 +206,22 @@ export default function CityTeamMatrix() {
                 const cityPct = cityTotalPOS ? cityPaidPOS / cityTotalPOS : 0;
                 const cityNeededPOS = Math.max(0, cityTargetPOS - cityPaidPOS);
                 return (
-                  <tr key={city} className="border-b border-border transition-colors hover:bg-bg-hover">
-                    <td className="sticky left-0 z-10 bg-background px-3 py-2 font-medium">{city}</td>
+                  <tr key={city} className="border-b border-[rgba(255,255,255,0.04)] transition-colors hover:bg-white/5">
+                    <td className="sticky left-0 z-10 bg-surface-1/90 backdrop-blur-sm px-4 py-3 font-medium whitespace-nowrap border-r border-[rgba(255,255,255,0.04)]">{city}</td>
                     {execs.map(exec => {
                       const cell = matrix[city]?.[exec];
-                      if (!cell) return <td key={exec} className="px-3 py-2 text-right text-muted-foreground">—</td>;
+                      if (!cell) return <td key={exec} className="px-4 py-3 text-right text-muted-foreground/30">—</td>;
                       const pct = cell.totalPOS ? cell.paidPOS / cell.totalPOS : 0;
-                      return <td key={exec} className={`px-3 py-2 text-right ${pctColor(pct)}`}>{fmtPct(pct)}</td>;
+                      return <td key={exec} className={`px-4 py-3 text-right ${pctColor(pct)}`}>{fmtPct(pct)}</td>;
                     })}
-                    <td className={`px-3 py-2 text-right font-bold ${pctColor(cityPct)}`}>{fmtPct(cityPct)}</td>
-                    <td className="px-3 py-2 text-right text-destructive font-bold">{cityNeededPOS <= 0 ? <span className="text-[10px] text-success uppercase">Achieved</span> : fmtCur(cityNeededPOS)}</td>
+                    <td className={`px-4 py-3 text-right font-bold ${pctColor(cityPct)}`}>{fmtPct(cityPct)}</td>
+                    <td className="px-4 py-3 text-right text-destructive font-bold">{cityNeededPOS <= 0 ? <span className="text-[10px] text-success uppercase tracking-wider">Achieved</span> : fmtCur(cityNeededPOS)}</td>
                   </tr>
                 );
               })}
               {/* Grand Total Row */}
-              <tr className="bg-accent-dim/30 font-bold">
-                <td className="sticky left-0 z-10 bg-accent-dim/30 px-3 py-2.5 font-heading">Grand Total</td>
+              <tr className="bg-primary/20 font-bold border-t-2 border-[rgba(255,255,255,0.1)]">
+                <td className="sticky left-0 z-10 bg-surface-1 px-4 py-4 font-heading uppercase text-primary tracking-widest text-[11px] border-r border-[rgba(255,255,255,0.04)]">Grand Total</td>
                 {execs.map(exec => {
                   let paidPOS = 0, totalPOS = 0;
                   cities.forEach(city => {
@@ -233,17 +229,17 @@ export default function CityTeamMatrix() {
                     if (cell) { paidPOS += cell.paidPOS; totalPOS += cell.totalPOS; }
                   });
                   const pct = totalPOS ? paidPOS / totalPOS : 0;
-                  return <td key={exec} className={`px-3 py-2.5 text-right ${pctColor(pct)}`}>{fmtPct(pct)}</td>;
+                  return <td key={exec} className={`px-4 py-4 text-right font-bold ${pctColor(pct)}`}>{fmtPct(pct)}</td>;
                 })}
-                <td className="px-3 py-2.5 text-right" />
-                <td className="px-3 py-2.5 text-right" />
+                <td className="px-4 py-4 text-right" />
+                <td className="px-4 py-4 text-right" />
               </tr>
             </tbody>
           </table>
         </div>
       </div>
       
-      <div className="mt-4 rounded-lg border border-border bg-card p-5">
+      <div className="mt-6 glass-panel p-5 rounded-xl">
         <h3 className="mb-2 font-heading text-sm font-bold">Needed POS Details</h3>
         <p className="font-data text-xs text-muted-foreground leading-relaxed">
           The matrix displays the Team Paid percentage. <br/>

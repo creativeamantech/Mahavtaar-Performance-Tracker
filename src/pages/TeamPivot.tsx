@@ -53,20 +53,20 @@ export default function TeamPivot() {
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="glass-panel overflow-hidden rounded-xl">
         <table className="w-full font-data text-xs">
           <thead>
-            <tr className="border-b border-border bg-card">
-              <th className="px-3 py-2.5 text-left font-medium text-muted-foreground">Bucket / Executive</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Collection</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Total Count</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Paid Count</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">POS Paid Only Count</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Total POS</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Paid POS</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Needed POS</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">POS Paid Only POS</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">Total %</th>
+            <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+              <th className="px-3 py-2.5 text-left font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Bucket / Executive</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Collection</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Total Count</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Paid Count</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">POS Paid Only Count</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Total POS</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Paid POS</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Needed POS</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">POS Paid Only POS</th>
+              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Total %</th>
             </tr>
           </thead>
           <tbody>
@@ -84,25 +84,25 @@ export default function TeamPivot() {
               const subPct = sub.totalPOS ? sub.paidPOS / sub.totalPOS : 0;
               return (
                 <React.Fragment key={bkt}>
-                  <tr className="bg-accent-dim/30">
-                    <td colSpan={9} className="px-3 py-2 font-heading text-xs font-bold text-primary">BUCKET {bkt}</td>
+                  <tr className="bg-primary/10 border-b border-[rgba(255,255,255,0.06)]">
+                    <td colSpan={9} className="px-3 py-2.5 font-heading text-[11px] font-bold text-primary uppercase tracking-[0.1em]">BUCKET {bkt}</td>
                   </tr>
                   {items.map((item: any) => (
-                    <tr key={item.exec} className="border-b border-border transition-colors hover:bg-bg-hover">
+                    <tr key={item.exec} className="border-b border-[rgba(255,255,255,0.04)] transition-colors hover:bg-white/5">
                       <td className="px-3 py-2 pl-6">{item.exec}</td>
-                      <td className="px-3 py-2 text-right text-primary">{fmtCur(item.collection)}</td>
+                      <td className="px-3 py-2 text-right text-primary font-bold">{fmtCur(item.collection)}</td>
                       <td className="px-3 py-2 text-right">{item.count}</td>
                       <td className="px-3 py-2 text-right text-success">{item.paid}</td>
                       <td className="px-3 py-2 text-right text-info">{item.posPaidOnlyCount}</td>
-                      <td className="px-3 py-2 text-right">{fmtCur(item.totalPOS)}</td>
-                      <td className="px-3 py-2 text-right">{fmtCur(item.paidPOS)}</td>
+                      <td className="px-3 py-2 text-right font-medium">{fmtCur(item.totalPOS)}</td>
+                      <td className="px-3 py-2 text-right font-medium">{fmtCur(item.paidPOS)}</td>
                       <td className="px-3 py-2 text-right">{item.target <= 0 ? <span className="text-[10px] font-bold text-success uppercase">Achieved</span> : <span className="text-destructive font-bold">{fmtCur(item.target)}</span>}</td>
                       <td className="px-3 py-2 text-right text-info">{fmtCur(item.posPaidOnlyPOS)}</td>
-                      <td className={`px-3 py-2 text-right ${pctColor(item.pct)}`}>{fmtPct(item.pct)}</td>
+                      <td className={`px-3 py-2 text-right font-bold ${pctColor(item.pct)}`}>{fmtPct(item.pct)}</td>
                     </tr>
                   ))}
-                  <tr className="border-b border-border-light bg-card/50 font-medium">
-                    <td className="px-3 py-2 pl-6 text-muted-foreground">Bucket {bkt} Total</td>
+                  <tr className="border-b border-[rgba(255,255,255,0.08)] bg-white/5 font-medium">
+                    <td className="px-3 py-2.5 pl-6 text-muted-foreground uppercase text-[10px] tracking-wider">Bucket {bkt} Total</td>
                     <td className="px-3 py-2 text-right text-primary">{fmtCur(sub.collection)}</td>
                     <td className="px-3 py-2 text-right">{sub.count}</td>
                     <td className="px-3 py-2 text-right text-success">{sub.paid}</td>
@@ -116,8 +116,8 @@ export default function TeamPivot() {
                 </React.Fragment>
               );
             })}
-            <tr className="bg-accent-dim/30 font-bold">
-              <td className="px-3 py-2.5 font-heading">GRAND TOTAL</td>
+            <tr className="bg-primary/20 font-bold border-t-2 border-[rgba(255,255,255,0.1)]">
+              <td className="px-3 py-3 font-heading uppercase text-primary tracking-widest text-[11px]">GRAND TOTAL</td>
               <td className="px-3 py-2.5 text-right text-primary">{fmtCur(grandTotal.collection)}</td>
               <td className="px-3 py-2.5 text-right">{grandTotal.count}</td>
               <td className="px-3 py-2.5 text-right text-success">{grandTotal.paid}</td>

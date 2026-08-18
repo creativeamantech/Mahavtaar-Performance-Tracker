@@ -44,21 +44,21 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
   };
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
+    <div className="glass-panel overflow-hidden rounded-xl">
       <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full font-data text-xs">
           <thead>
-            <tr className="border-b border-border bg-card">
+            <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
               {columns.map(col => (
                 <th
                   key={col.key}
-                  className={`sticky top-0 whitespace-nowrap px-3 py-2.5 font-medium text-muted-foreground ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable !== false ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
+                  className={`sticky top-0 whitespace-nowrap px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider text-[10px] ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable !== false ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
                   style={col.width ? { width: col.width } : undefined}
                   onClick={() => col.sortable !== false && toggleSort(col.key)}
                 >
-                  <span className="inline-flex items-center gap-1">
+                  <span className={`inline-flex items-center gap-1 ${col.align === 'right' ? 'justify-end w-full' : ''}`}>
                     {col.label}
-                    {sortKey === col.key && (sortDir === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}
+                    {sortKey === col.key && (sortDir === 'asc' ? <ChevronUp className="h-3 w-3 text-primary" /> : <ChevronDown className="h-3 w-3 text-primary" />)}
                   </span>
                 </th>
               ))}
@@ -67,7 +67,7 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-12 text-center text-muted-foreground">
+                <td colSpan={columns.length} className="py-12 text-center text-muted-foreground/60 italic font-medium">
                   No records found
                 </td>
               </tr>
@@ -76,10 +76,10 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
                 <tr
                   key={i}
                   onClick={() => onRowClick?.(row)}
-                  className={`border-b border-border transition-colors hover:bg-bg-hover ${i % 2 === 0 ? 'bg-transparent' : 'bg-[rgba(255,255,255,0.02)]'} ${onRowClick ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
+                  className={`border-b border-[rgba(255,255,255,0.04)] transition-colors hover:bg-white/5 ${i % 2 === 0 ? 'bg-transparent' : 'bg-[rgba(255,255,255,0.01)]'} ${onRowClick ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
                 >
                   {columns.map(col => (
-                    <td key={col.key} className={`whitespace-nowrap px-3 py-2.5 ${col.align === 'right' ? 'text-right' : 'text-left'}`}>
+                    <td key={col.key} className={`whitespace-nowrap px-4 py-3 ${col.align === 'right' ? 'text-right' : 'text-left'}`}>
                       {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
                     </td>
                   ))}
@@ -91,11 +91,11 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
       </div>
       {footer}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border bg-card px-4 py-2 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.01)] px-4 py-3 text-xs text-muted-foreground">
           <span>Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, data.length)} of {data.length}</span>
-          <div className="flex gap-1">
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded px-2 py-1 hover:bg-bg-hover disabled:opacity-30">Prev</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="rounded px-2 py-1 hover:bg-bg-hover disabled:opacity-30">Next</button>
+          <div className="flex gap-2">
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-md border border-[rgba(255,255,255,0.1)] px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Prev</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="rounded-md border border-[rgba(255,255,255,0.1)] px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Next</button>
           </div>
         </div>
       )}

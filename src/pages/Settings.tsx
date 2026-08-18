@@ -14,6 +14,8 @@ import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 
 import { TargetInput } from '../components/TargetInput';
+import { buildTargetKey, findMatchingRecordsCountAccurate } from '../lib/targets';
+import { db } from '../lib/db';
 
 export default function SettingsPage() {
   const [tab, setTab] = useState<'targets' | 'users'>('targets');
@@ -128,31 +130,44 @@ function StateTargetsTab() {
       return;
     }
     
-    const statesToProcess = selectedStates.includes('ALL') ? availableStates : selectedStates;
     const cy = selectedCity === 'ALL' ? '' : selectedCity;
     const bk = selectedBkt === 'ALL' ? '' : selectedBkt;
     const targetVal = val;
 
+    let keysToAdd: string[] = [];
+
+    if (selectedStates.includes('ALL')) {
+      if (cy === '') {
+        keysToAdd.push(buildTargetKey({ bkt: bk }));
+      } else {
+        keysToAdd.push(buildTargetKey({ city: cy, bkt: bk }));
+      }
+    } else {
+      selectedStates.forEach(st => {
+        keysToAdd.push(buildTargetKey({ state: st, city: cy, bkt: bk }));
+      });
+    }
+
+    // Deduplicate
+    keysToAdd = [...new Set(keysToAdd)];
+
+    if (keysToAdd.length === 0) {
+      toast.error('No valid targets generated.');
+      return;
+    }
+
     let confirmationMsg = '';
-    if (statesToProcess.length > 1 && cy === '') {
-      confirmationMsg = `Apply ${targetVal}% bulk target to ${statesToProcess.length} States${bk ? ` for Bucket ${bk}` : ''}?`;
-    } else if (cy === '') {
-      confirmationMsg = `Apply ${targetVal}% bulk target to ${statesToProcess[0]}${bk ? ` for Bucket ${bk}` : ''}?`;
+    if (keysToAdd.length > 1) {
+      confirmationMsg = `Apply ${targetVal}% target to ${keysToAdd.length} configurations?`;
+    } else {
+      confirmationMsg = `Apply ${targetVal}% target to ${keysToAdd[0].replace(/__/g, ' ')}?`;
     }
 
     if (confirmationMsg && !window.confirm(confirmationMsg)) {
       return;
     }
 
-    statesToProcess.forEach(st => {
-      let key = '';
-      if (cy && bk) key = `CITY__${cy}__BKT__${bk}`;
-      else if (!cy && bk) key = `STATE__${st}__BKT__${bk}`;
-      else if (cy && !bk) key = `CITY__${cy}`;
-      else key = `STATE__${st}`;
-
-      setTarget(key, targetVal, user?.name || '');
-    });
+    keysToAdd.forEach(k => setTarget(k, targetVal, user?.name || ''));
 
     toast.success(`Targets applied successfully`);
     setNewPct('');
@@ -164,32 +179,32 @@ function StateTargetsTab() {
         <h2 className="mb-3 font-heading text-sm font-bold uppercase tracking-wider">Target Configuration</h2>
         <p className="mb-4 font-data text-xs text-muted-foreground">Target = (Total POS × X%) − Main Paid POS</p>
         
-        <div className="mb-6 grid grid-cols-1 gap-4 rounded-lg border border-border bg-card p-4 sm:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-4 glass-panel rounded-xl p-5 sm:grid-cols-4">
           <div>
-            <label className="mb-1.5 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-wider">State</label>
+            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
             <Popover open={openState} onOpenChange={setOpenState}>
               <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={openState} className="w-full justify-between h-9 px-3 text-xs bg-input border-border hover:bg-input hover:text-foreground font-data">
+                <Button variant="outline" role="combobox" aria-expanded={openState} className="w-full justify-between h-9 px-3 text-xs glass-input font-data border-[rgba(255,255,255,0.1)] hover:bg-white/5 hover:text-foreground">
                   {selectedStates.includes('ALL') ? 'All States' : selectedStates.length > 0 ? `${selectedStates.length} selected` : 'Select States...'}
                   <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
+              <PopoverContent className="w-[200px] p-0 bg-surface-2 border-[rgba(255,255,255,0.1)] text-foreground">
                 <Command>
-                  <CommandInput placeholder="Search state..." className="h-8 text-xs" />
+                  <CommandInput placeholder="Search state..." className="h-8 text-xs border-b border-[rgba(255,255,255,0.05)] bg-transparent" />
                   <CommandList>
                     <CommandEmpty>No state found.</CommandEmpty>
                     <CommandGroup>
-                      <CommandItem onSelect={() => toggleState('ALL')} className="text-xs">
-                        <div className={cn("mr-2 flex h-3.5 w-3.5 items-center justify-center rounded-sm border border-primary", selectedStates.includes('ALL') ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible")}>
-                          <Check className="h-3 w-3" />
+                      <CommandItem onSelect={() => toggleState('ALL')} className="text-xs hover:bg-primary/20 cursor-pointer">
+                        <div className={cn("mr-2 flex h-3.5 w-3.5 items-center justify-center rounded-[4px] border", selectedStates.includes('ALL') ? "bg-primary border-primary text-primary-foreground" : "border-[rgba(255,255,255,0.2)] opacity-50 [&_svg]:invisible")}>
+                          <Check className="h-2.5 w-2.5" />
                         </div>
                         All States
                       </CommandItem>
                       {availableStates.map(s => (
-                        <CommandItem key={s} onSelect={() => toggleState(s)} className="text-xs">
-                          <div className={cn("mr-2 flex h-3.5 w-3.5 items-center justify-center rounded-sm border border-primary", selectedStates.includes(s) && !selectedStates.includes('ALL') ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible")}>
-                            <Check className="h-3 w-3" />
+                        <CommandItem key={s} onSelect={() => toggleState(s)} className="text-xs hover:bg-primary/20 cursor-pointer">
+                          <div className={cn("mr-2 flex h-3.5 w-3.5 items-center justify-center rounded-[4px] border", selectedStates.includes(s) && !selectedStates.includes('ALL') ? "bg-primary border-primary text-primary-foreground" : "border-[rgba(255,255,255,0.2)] opacity-50 [&_svg]:invisible")}>
+                            <Check className="h-2.5 w-2.5" />
                           </div>
                           {s}
                         </CommandItem>
@@ -200,28 +215,29 @@ function StateTargetsTab() {
               </PopoverContent>
             </Popover>
           </div>
+
           <div>
-            <label className="mb-1.5 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-wider">City</label>
+            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">City</label>
             <Popover open={openCity} onOpenChange={setOpenCity}>
               <PopoverTrigger asChild>
-                <Button disabled={selectedStates.length === 0} variant="outline" role="combobox" aria-expanded={openCity} className="w-full justify-between h-9 px-3 text-xs bg-input border-border hover:bg-input hover:text-foreground font-data truncate">
+                <Button disabled={selectedStates.length === 0} variant="outline" role="combobox" aria-expanded={openCity} className="w-full justify-between h-9 px-3 text-xs glass-input font-data border-[rgba(255,255,255,0.1)] hover:bg-white/5 hover:text-foreground truncate disabled:opacity-50">
                   {selectedCity === 'ALL' ? 'All (Bulk)' : selectedCity ? selectedCity : 'Select City...'}
                   <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
+              <PopoverContent className="w-[200px] p-0 bg-surface-2 border-[rgba(255,255,255,0.1)] text-foreground">
                 <Command>
-                  <CommandInput placeholder="Search city..." className="h-8 text-xs" />
+                  <CommandInput placeholder="Search city..." className="h-8 text-xs border-b border-[rgba(255,255,255,0.05)] bg-transparent" />
                   <CommandList>
                     <CommandEmpty>No city found.</CommandEmpty>
                     <CommandGroup>
-                      <CommandItem onSelect={() => { setSelectedCity('ALL'); setOpenCity(false); }} className="text-xs">
-                        <Check className={cn("mr-2 h-3.5 w-3.5", selectedCity === 'ALL' ? "opacity-100" : "opacity-0")} />
+                      <CommandItem onSelect={() => { setSelectedCity('ALL'); setOpenCity(false); }} className="text-xs hover:bg-primary/20 cursor-pointer">
+                        <Check className={cn("mr-2 h-3.5 w-3.5 text-primary", selectedCity === 'ALL' ? "opacity-100" : "opacity-0")} />
                         All (Bulk)
                       </CommandItem>
                       {availableCities.map(c => (
-                        <CommandItem key={c} onSelect={() => { setSelectedCity(c); setOpenCity(false); }} className="text-xs">
-                          <Check className={cn("mr-2 h-3.5 w-3.5", selectedCity === c ? "opacity-100" : "opacity-0")} />
+                        <CommandItem key={c} onSelect={() => { setSelectedCity(c); setOpenCity(false); }} className="text-xs hover:bg-primary/20 cursor-pointer">
+                          <Check className={cn("mr-2 h-3.5 w-3.5 text-primary", selectedCity === c ? "opacity-100" : "opacity-0")} />
                           {c}
                         </CommandItem>
                       ))}
@@ -231,61 +247,76 @@ function StateTargetsTab() {
               </PopoverContent>
             </Popover>
           </div>
+
           <div>
-            <label className="mb-1.5 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Bucket</label>
+            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Bucket</label>
             <Select value={selectedBkt} onValueChange={setSelectedBkt} disabled={selectedStates.length === 0}>
-              <SelectTrigger className="h-9 px-3 text-xs bg-input border-border font-data"><SelectValue placeholder="Select Bucket" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL" className="text-xs">All Buckets</SelectItem>
-                {availableBuckets.map(b => <SelectItem key={b} value={b} className="text-xs">Bucket {b}</SelectItem>)}
+              <SelectTrigger className="h-9 px-3 text-xs glass-input font-data border-[rgba(255,255,255,0.1)] bg-transparent disabled:opacity-50"><SelectValue placeholder="Select Bucket" /></SelectTrigger>
+              <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.1)] text-foreground">
+                <SelectItem value="ALL" className="text-xs hover:bg-primary/20">All Buckets</SelectItem>
+                {availableBuckets.map(b => <SelectItem key={b} value={b} className="text-xs hover:bg-primary/20">Bucket {b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
+
           <div>
-            <label className="mb-1.5 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Target %</label>
-            <div className="flex gap-2">
-              <input value={newPct} onChange={e => setNewPct(e.target.value)} placeholder="e.g. 40" className="h-9 flex-1 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-              <button onClick={addTarget} className="rounded bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">Add</button>
+            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Target %</label>
+            <div className="flex gap-2 h-9">
+              <input value={newPct} onChange={e => setNewPct(e.target.value)} placeholder="e.g. 40" className="flex-1 min-w-0 glass-input px-3 py-1 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
+              <button onClick={addTarget} className="rounded-md bg-primary px-4 font-heading text-[11px] font-bold tracking-wider text-primary-foreground uppercase hover:bg-primary/90 transition-colors shrink-0">Add</button>
             </div>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="glass-panel overflow-hidden rounded-xl">
           <table className="w-full font-data text-xs">
-            <thead><tr className="border-b border-border bg-card">
-              <th className="px-3 py-2.5 text-left font-medium text-muted-foreground">Target Key</th>
-              <th className="px-3 py-2.5 text-right font-medium text-muted-foreground">X%</th>
-            </tr></thead>
+            <thead>
+              <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Target Key</th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Coverage</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">X%</th>
+              </tr>
+            </thead>
             <tbody>
-              {entries.map(([key, pct]) => (
-                <tr key={key} className="border-b border-border hover:bg-bg-hover">
-                  <td className="px-3 py-2">{key}</td>
-                  <td className="px-3 py-2 text-right">
-                    <TargetInput
-                      targetKey={key}
-                      initialPct={pct}
-                      onSave={(k, v) => setTarget(k, v, user?.name || '')}
-                    />
-                  </td>
-                </tr>
-              ))}
+              {entries.map(([key, pct]) => {
+                const count = findMatchingRecordsCountAccurate(key, targets, records);
+                return (
+                  <tr key={key} className="border-b border-[rgba(255,255,255,0.04)] hover:bg-white/5 transition-colors">
+                    <td className="px-4 py-3">{key.replace(/__/g, ' ')}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider", count > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive")}>
+                        {count} records
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <TargetInput
+                        targetKey={key}
+                        initialPct={pct}
+                        onSave={(k, v) => setTarget(k, v, user?.name || '')}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
               {entries.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="px-3 py-4 text-center text-muted-foreground">No targets configured.</td>
+                  <td colSpan={3} className="px-4 py-6 text-center text-muted-foreground/60 italic font-medium">No targets configured.</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
-      <div className="rounded-lg border border-border bg-card p-5">
+      <div className="glass-panel p-5 rounded-xl">
         <h3 className="mb-2 font-heading text-sm font-bold">Formula</h3>
         <p className="font-data text-xs text-muted-foreground leading-relaxed">
           Targets are evaluated per row. Priority:<br />
           1. CITY + BKT<br />
           2. STATE + BKT<br />
-          3. CITY<br />
-          4. STATE<br /><br />
+          3. GLOBAL + BKT<br />
+          4. CITY<br />
+          5. STATE<br />
+          6. GLOBAL<br /><br />
           City Target = Sum of (Row POS × Row X%) − City Main Paid POS
         </p>
       </div>
@@ -299,6 +330,19 @@ function UserManagementTab() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', email: '', role: 'VIEWER' as Role, password: '' });
   const [editPerms, setEditPerms] = useState<string[]>([]);
+
+  const handleWipeDatabase = async () => {
+    if (window.confirm("WARNING: This will permanently delete all records, targets, users, and upload history from your browser. This action cannot be undone. Are you absolutely sure?")) {
+      try {
+        await db.delete();
+        localStorage.clear();
+        window.location.reload();
+      } catch (err) {
+        toast.error("Failed to wipe database");
+        console.error(err);
+      }
+    }
+  };
 
   const openCreate = () => {
     setEditId(null);
@@ -314,20 +358,20 @@ function UserManagementTab() {
     setShowModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editId) {
-      updateUser(editId, { name: form.name, email: form.email, role: form.role, permissions: { views: editPerms } });
+      await updateUser(editId, { name: form.name, email: form.email, role: form.role, permissions: { views: editPerms } });
       toast.success('User updated');
     } else {
-      addUser({ name: form.name, email: form.email, role: form.role, permissions: { views: editPerms } });
+      await addUser({ name: form.name, email: form.email, role: form.role, permissions: { views: editPerms } });
       toast.success('User created');
     }
     setShowModal(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (id === currentUser?.id) return toast.error("Cannot delete own account");
-    deleteUser(id);
+    await deleteUser(id);
     toast.success('User deleted');
   };
 
@@ -349,7 +393,14 @@ function UserManagementTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-heading text-sm font-bold uppercase tracking-wider">User Management</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="font-heading text-sm font-bold uppercase tracking-wider">User Management</h2>
+          {currentUser?.role === 'ADMIN' && (
+            <button onClick={handleWipeDatabase} className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-1 font-heading text-[10px] font-bold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors">
+              WIPE DATABASE
+            </button>
+          )}
+        </div>
         <button onClick={openCreate} className="flex h-[34px] items-center gap-2 rounded-md bg-primary px-4 font-heading text-xs font-bold text-primary-foreground hover:opacity-90">
           <Plus className="h-3.5 w-3.5" /> Create User
         </button>
