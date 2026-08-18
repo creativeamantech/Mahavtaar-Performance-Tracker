@@ -51,7 +51,7 @@ export default function Login() {
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           
           <div className="mb-5">
-            <label className="mb-1.5 block font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Email</label>
+            <label className="mb-1.5 block font-heading text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Email</label>
             <input
               type="email"
               autoFocus
@@ -63,7 +63,7 @@ export default function Login() {
           </div>
 
           <div className="mb-6">
-            <label className="mb-1.5 block font-heading text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Password</label>
+            <label className="mb-1.5 block font-heading text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Password</label>
             <div className="relative">
               <input
                 type={showPass ? 'text' : 'password'}
@@ -91,13 +91,13 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="flex h-11 w-full items-center justify-center rounded-lg bg-primary font-heading text-[11px] font-bold uppercase tracking-[0.2em] text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] disabled:opacity-50 disabled:hover:shadow-none"
+            className="flex h-11 w-full items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold uppercase tracking-[0.2em] text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] disabled:opacity-50 disabled:hover:shadow-none"
           >
             {loading ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" /> : 'Authenticate'}
           </button>
           
           <div className="mt-6 text-center">
-            <p className="font-data text-[10px] text-muted-foreground/60">
+            <p className="font-data text-xs text-muted-foreground/60">
               Demo access: admin@company.com / Admin@123
             </p>
           </div>

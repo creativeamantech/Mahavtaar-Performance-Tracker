@@ -154,7 +154,7 @@ export default function DataEntry() {
       render: (_v: number, row: any) => {
         if (!row.provisional_dac && !row.is_conflict) return <span className="text-muted-foreground">-</span>;
         return (
-          <span className={`inline-flex items-center gap-1 rounded bg-muted/50 px-1.5 py-0.5 text-right font-data text-xs ${row.is_conflict ? 'text-destructive font-bold' : 'text-info'}`}>
+          <span className={`inline-flex items-center gap-1 rounded bg-muted/50 px-1.5 py-0.5 text-right font-sans text-xs ${row.is_conflict ? 'text-destructive font-bold' : 'text-info'}`}>
             {fmtCur(row.provisional_dac_raw || row.provisional_dac)}
             {row.is_conflict && <span title={`Conflict with Confirmed DAC (${fmtCur(row.dac)})`}>⚠️</span>}
           </span>
@@ -209,13 +209,13 @@ export default function DataEntry() {
 
   return (
     <AppLayout>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-heading text-xl font-extrabold uppercase tracking-wide">Data Entry</h1>
-          <p className="font-data text-xs text-muted-foreground">Upload files & manage payment data</p>
+          <h1 className="font-sans text-xl font-extrabold uppercase tracking-wide">Data Entry</h1>
+          <p className="font-sans text-xs text-muted-foreground">Upload files & manage payment data</p>
         </div>
         {hasConflicts && (
-          <button onClick={exportConflicts} className="flex h-9 items-center gap-2 rounded-md bg-destructive px-4 font-heading text-xs font-bold text-destructive-foreground hover:bg-destructive/90">
+          <button onClick={exportConflicts} className="flex h-9 items-center gap-2 rounded-md bg-destructive px-4 font-sans text-xs font-bold text-destructive-foreground hover:bg-destructive/90">
             <Download className="h-3.5 w-3.5" /> Export Conflicts
           </button>
         )}
@@ -258,37 +258,37 @@ export default function DataEntry() {
       ]} />
 
       {/* Filters */}
-      <div className="mb-4 flex flex-wrap items-center gap-3 glass-panel p-3 rounded-lg">
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
+      <div className="mb-4 flex flex-wrap items-center gap-3 bg-card border rounded-xl shadow-sm p-3 rounded-lg">
+        <div className="relative w-full sm:flex-1 min-w-[200px] sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search ID, city, executive..."
-            className="h-9 w-full glass-input pl-9 pr-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            className="h-9 w-full bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent pl-9 pr-3 font-sans text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary"
           />
         </div>
-        <select value={bucketFilter} onChange={e => setBucketFilter(e.target.value)} className="h-9 glass-input px-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+        <select value={bucketFilter} onChange={e => setBucketFilter(e.target.value)} className="h-9 w-full sm:w-auto bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent font-sans text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
           <option value="all">All Buckets</option>
           {[1, 2, 3, 4, 5].map(b => <option key={b} value={b}>Bucket {b}</option>)}
         </select>
-        <select value={paidFilter} onChange={e => setPaidFilter(e.target.value)} className="h-9 glass-input px-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+        <select value={paidFilter} onChange={e => setPaidFilter(e.target.value)} className="h-9 w-full sm:w-auto bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent font-sans text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
           <option value="all">All Status</option>
           <option value="paid">Paid</option>
           <option value="unpaid">Unpaid</option>
         </select>
-        <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="h-9 glass-input px-3 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+        <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} className="h-9 w-full sm:w-auto bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent font-sans text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
           <option value="all">All Cities</option>
           {cities.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
 
         {(search || bucketFilter !== 'all' || paidFilter !== 'all' || cityFilter !== 'all') && (
           <button onClick={() => { setSearch(''); setBucketFilter('all'); setPaidFilter('all'); setCityFilter('all'); }}
-            className="flex h-9 items-center gap-1.5 rounded-md border border-[rgba(255,255,255,0.1)] bg-white/5 px-3 font-data text-xs text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors">
+            className="flex h-9 items-center gap-1.5 rounded-md border border-[rgba(255,255,255,0.1)] bg-white/5 px-3 font-sans text-xs text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors">
             <X className="h-3.5 w-3.5" /> Reset
           </button>
         )}
-        <span className="ml-auto font-data text-xs text-primary font-bold">
+        <span className="ml-auto font-sans text-xs text-primary font-bold">
           Showing {filteredRecords.length} of {records.length}
         </span>
       </div>
@@ -322,13 +322,13 @@ function EditableCell({ value, source, onSave }: { value: number; source?: strin
         onChange={e => setVal(e.target.value)}
         onBlur={() => { setEditing(false); onSave(val); }}
         onKeyDown={e => { if (e.key === 'Enter') { setEditing(false); onSave(val); } }}
-        className="h-6 w-20 rounded border border-primary bg-[rgba(255,255,255,0.05)] px-1 text-right font-data text-xs text-foreground outline-none shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+        className="h-6 w-20 rounded border border-primary bg-[rgba(255,255,255,0.05)] px-1 text-right font-sans text-xs text-foreground outline-none shadow-[0_0_10px_rgba(245,158,11,0.15)]"
       />
     );
   }
 
   return (
-    <span onClick={() => setEditing(true)} className={`inline-flex cursor-pointer items-center gap-1 rounded border bg-[rgba(255,255,255,0.02)] px-1.5 py-0.5 text-right transition-colors ${borderClass}`}>
+    <span onClick={() => setEditing(true)} className={`inline-flex cursor-pointer items-center gap-1 rounded border bg-card px-1.5 py-0.5 text-right transition-colors ${borderClass}`}>
       {fmtCur(value)} {icon && <span className="text-[9px] opacity-80">{icon}</span>}
     </span>
   );

@@ -28,8 +28,8 @@ export function UploadZone({ title, accept = '.xlsx,.xls,.csv', onFileSelect, la
   }, [onFileSelect]);
 
   return (
-    <div className="glass-panel p-6 rounded-xl">
-      <h3 className="mb-4 font-heading text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{title}</h3>
+    <div className="bg-card border rounded-xl shadow-sm p-6 rounded-xl">
+      <h3 className="mb-4 font-sans text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{title}</h3>
       <div
         onClick={() => inputRef.current?.click()}
         onDragOver={e => { e.preventDefault(); setDragging(true); }}

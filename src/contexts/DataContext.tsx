@@ -3,6 +3,7 @@ import { parseMainFile, parsePaidFile, mergePaidIntoRecords, parseAdditionalFile
 import { db, AuditEntry, UploadSession } from '../lib/db';
 
 interface DataContextType {
+  isLoading: boolean;
   records: any[];
   targets: Record<string, number>;
   auditLog: AuditEntry[];
@@ -22,6 +23,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [targets, setTargets] = useState<Record<string, number>>({});
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [uploadHistory, setUploadHistory] = useState<UploadSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Load from Dexie on mount
   useEffect(() => {
@@ -45,23 +47,29 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
 
       // 2. Load targets from Dexie
-      const dbTargets = await db.state_targets.toArray();
-      const targetsMap = dbTargets.reduce((acc, t) => {
-        acc[t.key] = t.pct;
-        return acc;
-      }, {} as Record<string, number>);
-      setTargets(targetsMap);
-
-      // 3. Load records
-      const dbRecords = await db.loan_records.toArray();
-      setRecords(dbRecords);
-
-      // 4. Load history and audit logs
-      const dbUploads = await db.upload_sessions.orderBy('createdAt').reverse().toArray();
-      setUploadHistory(dbUploads);
-
-      const dbAudit = await db.audit_log.orderBy('createdAt').reverse().toArray();
-      setAuditLog(dbAudit);
+      try {
+        const dbTargets = await db.state_targets.toArray();
+        const targetsMap = dbTargets.reduce((acc, t) => {
+          acc[t.key] = t.pct;
+          return acc;
+        }, {} as Record<string, number>);
+        setTargets(targetsMap);
+        
+        // 3. Load records
+        const dbRecords = await db.loan_records.toArray();
+        setRecords(dbRecords);
+        
+        // 4. Load history and audit logs
+        const dbUploads = await db.upload_sessions.orderBy('createdAt').reverse().toArray();
+        setUploadHistory(dbUploads);
+        
+        const dbAudit = await db.audit_log.orderBy('createdAt').reverse().toArray();
+        setAuditLog(dbAudit);
+      } catch (err) {
+        console.error("Dexie Load Error:", err);
+      } finally {
+        setIsLoading(false);
+      }
     }
     loadData();
   }, []);
@@ -177,7 +185,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ records, targets, auditLog, uploadHistory, loadMainFile, loadPaidFile, loadAdditionalFile, loadCorrectedFile, updateRecord, setTarget }}>
+    <DataContext.Provider value={{ isLoading, records, targets, auditLog, uploadHistory, loadMainFile, loadPaidFile, loadAdditionalFile, loadCorrectedFile, updateRecord, setTarget }}>
       {children}
     </DataContext.Provider>
   );

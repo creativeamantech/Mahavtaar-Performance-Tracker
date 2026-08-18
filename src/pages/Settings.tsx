@@ -23,18 +23,18 @@ export default function SettingsPage() {
   return (
     <AppLayout>
       <div className="mb-6">
-        <h1 className="font-heading text-xl font-extrabold uppercase tracking-wide">Settings</h1>
-        <p className="font-data text-xs text-muted-foreground">Admin configuration</p>
+        <h1 className="font-sans text-xl font-extrabold uppercase tracking-wide">Settings</h1>
+        <p className="font-sans text-xs text-muted-foreground">Admin configuration</p>
       </div>
 
       <div className="mb-4 flex gap-1 rounded-lg border border-border bg-card p-1">
         <button
           onClick={() => setTab('targets')}
-          className={`rounded-md px-4 py-2 font-heading text-xs font-bold transition-colors ${tab === 'targets' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`rounded-md px-4 py-2 font-sans text-xs font-bold transition-colors ${tab === 'targets' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >State Targets</button>
         <button
           onClick={() => setTab('users')}
-          className={`rounded-md px-4 py-2 font-heading text-xs font-bold transition-colors ${tab === 'users' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+          className={`rounded-md px-4 py-2 font-sans text-xs font-bold transition-colors ${tab === 'users' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >User Management</button>
       </div>
 
@@ -156,40 +156,32 @@ function StateTargetsTab() {
       return;
     }
 
-    let confirmationMsg = '';
-    if (keysToAdd.length > 1) {
-      confirmationMsg = `Apply ${targetVal}% target to ${keysToAdd.length} configurations?`;
-    } else {
-      confirmationMsg = `Apply ${targetVal}% target to ${keysToAdd[0].replace(/__/g, ' ')}?`;
-    }
-
-    if (confirmationMsg && !window.confirm(confirmationMsg)) {
-      return;
-    }
-
-    keysToAdd.forEach(k => setTarget(k, targetVal, user?.name || ''));
-
-    toast.success(`Targets applied successfully`);
-    setNewPct('');
+        Promise.all(keysToAdd.map(k => setTarget(k, targetVal, user?.name || ''))).then(() => {
+      let msg = keysToAdd.length > 1 
+        ? `Applied ${targetVal}% target to ${keysToAdd.length} configurations`
+        : `Applied ${targetVal}% target to ${keysToAdd[0].replace(/__/g, ' ')}`;
+      toast.success(msg);
+      setNewPct('');
+    });
   };
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <h2 className="mb-3 font-heading text-sm font-bold uppercase tracking-wider">Target Configuration</h2>
-        <p className="mb-4 font-data text-xs text-muted-foreground">Target = (Total POS × X%) − Main Paid POS</p>
+        <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-wider">Target Configuration</h2>
+        <p className="mb-4 font-sans text-xs text-muted-foreground">Target = (Total POS × X%) − Main Paid POS</p>
         
-        <div className="mb-6 grid grid-cols-1 gap-4 glass-panel rounded-xl p-5 sm:grid-cols-4">
+        <div className="mb-6 grid grid-cols-1 gap-4 bg-card border rounded-xl shadow-sm rounded-xl p-5 sm:grid-cols-4">
           <div>
-            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
+            <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
             <Popover open={openState} onOpenChange={setOpenState}>
               <PopoverTrigger asChild>
-                <Button variant="outline" role="combobox" aria-expanded={openState} className="w-full justify-between h-9 px-3 text-xs glass-input font-data border-[rgba(255,255,255,0.1)] hover:bg-white/5 hover:text-foreground">
+                <Button variant="outline" role="combobox" aria-expanded={openState} className="w-full justify-between h-9 px-3 text-xs w-full justify-between h-9 px-3 text-xs bg-background border border-input rounded-md hover:bg-muted hover:text-foreground">
                   {selectedStates.includes('ALL') ? 'All States' : selectedStates.length > 0 ? `${selectedStates.length} selected` : 'Select States...'}
                   <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0 bg-surface-2 border-[rgba(255,255,255,0.1)] text-foreground">
+              <PopoverContent className="w-[200px] p-0 bg-card border-border text-foreground">
                 <Command>
                   <CommandInput placeholder="Search state..." className="h-8 text-xs border-b border-[rgba(255,255,255,0.05)] bg-transparent" />
                   <CommandList>
@@ -217,15 +209,15 @@ function StateTargetsTab() {
           </div>
 
           <div>
-            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">City</label>
+            <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">City</label>
             <Popover open={openCity} onOpenChange={setOpenCity}>
               <PopoverTrigger asChild>
-                <Button disabled={selectedStates.length === 0} variant="outline" role="combobox" aria-expanded={openCity} className="w-full justify-between h-9 px-3 text-xs glass-input font-data border-[rgba(255,255,255,0.1)] hover:bg-white/5 hover:text-foreground truncate disabled:opacity-50">
+                <Button disabled={selectedStates.length === 0} variant="outline" role="combobox" aria-expanded={openCity} className="w-full justify-between h-9 px-3 text-xs w-full justify-between h-9 px-3 text-xs bg-background border border-input rounded-md hover:bg-muted hover:text-foreground truncate disabled:opacity-50">
                   {selectedCity === 'ALL' ? 'All (Bulk)' : selectedCity ? selectedCity : 'Select City...'}
                   <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0 bg-surface-2 border-[rgba(255,255,255,0.1)] text-foreground">
+              <PopoverContent className="w-[200px] p-0 bg-card border-border text-foreground">
                 <Command>
                   <CommandInput placeholder="Search city..." className="h-8 text-xs border-b border-[rgba(255,255,255,0.05)] bg-transparent" />
                   <CommandList>
@@ -249,10 +241,10 @@ function StateTargetsTab() {
           </div>
 
           <div>
-            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Bucket</label>
+            <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">Bucket</label>
             <Select value={selectedBkt} onValueChange={setSelectedBkt} disabled={selectedStates.length === 0}>
-              <SelectTrigger className="h-9 px-3 text-xs glass-input font-data border-[rgba(255,255,255,0.1)] bg-transparent disabled:opacity-50"><SelectValue placeholder="Select Bucket" /></SelectTrigger>
-              <SelectContent className="bg-surface-2 border-[rgba(255,255,255,0.1)] text-foreground">
+              <SelectTrigger className="h-9 px-3 text-xs bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent font-sans border-border bg-transparent disabled:opacity-50"><SelectValue placeholder="Select Bucket" /></SelectTrigger>
+              <SelectContent className="bg-card border-border text-foreground">
                 <SelectItem value="ALL" className="text-xs hover:bg-primary/20">All Buckets</SelectItem>
                 {availableBuckets.map(b => <SelectItem key={b} value={b} className="text-xs hover:bg-primary/20">Bucket {b}</SelectItem>)}
               </SelectContent>
@@ -260,31 +252,31 @@ function StateTargetsTab() {
           </div>
 
           <div>
-            <label className="mb-2 block font-heading text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em]">Target %</label>
+            <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">Target %</label>
             <div className="flex gap-2 h-9">
-              <input value={newPct} onChange={e => setNewPct(e.target.value)} placeholder="e.g. 40" className="flex-1 min-w-0 glass-input px-3 py-1 font-data text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary" />
-              <button onClick={addTarget} className="rounded-md bg-primary px-4 font-heading text-[11px] font-bold tracking-wider text-primary-foreground uppercase hover:bg-primary/90 transition-colors shrink-0">Add</button>
+              <input value={newPct} onChange={e => setNewPct(e.target.value)} placeholder="e.g. 40" className="flex-1 min-w-0 bg-background border border-input rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent" />
+              <button onClick={addTarget} className="h-9 w-full sm:w-auto rounded-md bg-primary px-4 font-sans text-sm font-bold tracking-wider text-primary-foreground uppercase hover:bg-primary/90 transition-colors shrink-0">Add</button>
             </div>
           </div>
         </div>
 
-        <div className="glass-panel overflow-hidden rounded-xl">
-          <table className="w-full font-data text-xs">
+        <div className="bg-card border rounded-xl shadow-sm overflow-hidden rounded-xl">
+          <table className="w-full font-sans text-xs">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
-                <th className="px-4 py-3 text-left font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Target Key</th>
-                <th className="px-4 py-3 text-center font-medium text-muted-foreground uppercase tracking-wider text-[10px]">Coverage</th>
-                <th className="px-4 py-3 text-right font-medium text-muted-foreground uppercase tracking-wider text-[10px]">X%</th>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground uppercase tracking-wider text-xs">Target Key</th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground uppercase tracking-wider text-xs">Coverage</th>
+                <th className="px-4 py-3 text-right font-medium text-muted-foreground uppercase tracking-wider text-xs">X%</th>
               </tr>
             </thead>
             <tbody>
               {entries.map(([key, pct]) => {
                 const count = findMatchingRecordsCountAccurate(key, targets, records);
                 return (
-                  <tr key={key} className="border-b border-[rgba(255,255,255,0.04)] hover:bg-white/5 transition-colors">
+                  <tr key={key} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-4 py-3">{key.replace(/__/g, ' ')}</td>
                     <td className="px-4 py-3 text-center">
-                      <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider", count > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive")}>
+                      <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold tracking-wider", count > 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive")}>
                         {count} records
                       </span>
                     </td>
@@ -307,9 +299,9 @@ function StateTargetsTab() {
           </table>
         </div>
       </div>
-      <div className="glass-panel p-5 rounded-xl">
-        <h3 className="mb-2 font-heading text-sm font-bold">Formula</h3>
-        <p className="font-data text-xs text-muted-foreground leading-relaxed">
+      <div className="bg-card border rounded-xl shadow-sm p-5 rounded-xl">
+        <h3 className="mb-2 font-sans text-sm font-bold">Formula</h3>
+        <p className="font-sans text-xs text-muted-foreground leading-relaxed">
           Targets are evaluated per row. Priority:<br />
           1. CITY + BKT<br />
           2. STATE + BKT<br />
@@ -331,16 +323,21 @@ function UserManagementTab() {
   const [form, setForm] = useState({ name: '', email: '', role: 'VIEWER' as Role, password: '' });
   const [editPerms, setEditPerms] = useState<string[]>([]);
 
+  const [confirmWipe, setConfirmWipe] = useState(false);
+
   const handleWipeDatabase = async () => {
-    if (window.confirm("WARNING: This will permanently delete all records, targets, users, and upload history from your browser. This action cannot be undone. Are you absolutely sure?")) {
-      try {
-        await db.delete();
-        localStorage.clear();
-        window.location.reload();
-      } catch (err) {
-        toast.error("Failed to wipe database");
-        console.error(err);
-      }
+    if (!confirmWipe) {
+      setConfirmWipe(true);
+      toast('Click CONFIRM WIPE again to confirm deletion', { duration: 4000 });
+      return;
+    }
+    try {
+      await db.delete();
+      localStorage.clear();
+      window.location.reload();
+    } catch (err) {
+      toast.error("Failed to wipe database");
+      console.error(err);
     }
   };
 
@@ -392,16 +389,16 @@ function UserManagementTab() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <h2 className="font-heading text-sm font-bold uppercase tracking-wider">User Management</h2>
+          <h2 className="font-sans text-sm font-bold uppercase tracking-wider">User Management</h2>
           {currentUser?.role === 'ADMIN' && (
-            <button onClick={handleWipeDatabase} className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-1 font-heading text-[10px] font-bold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors">
-              WIPE DATABASE
+            <button onClick={handleWipeDatabase} className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-1 font-sans text-xs font-bold text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors">
+              {confirmWipe ? "CONFIRM WIPE" : "WIPE DATABASE"}
             </button>
           )}
         </div>
-        <button onClick={openCreate} className="flex h-[34px] items-center gap-2 rounded-md bg-primary px-4 font-heading text-xs font-bold text-primary-foreground hover:opacity-90">
+        <button onClick={openCreate} className="flex h-[34px] items-center gap-2 rounded-md bg-primary px-4 font-sans text-xs font-bold text-primary-foreground hover:opacity-90">
           <Plus className="h-3.5 w-3.5" /> Create User
         </button>
       </div>
@@ -410,21 +407,21 @@ function UserManagementTab() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80">
-          <div className="w-full max-w-md rounded-lg border border-border bg-card p-6">
-            <h3 className="mb-4 font-heading text-sm font-bold">{editId ? 'Edit User' : 'Create User'}</h3>
+          <div className="w-[calc(100%-2rem)] max-w-md rounded-lg border border-border bg-card p-6">
+            <h3 className="mb-4 font-sans text-sm font-bold">{editId ? 'Edit User' : 'Create User'}</h3>
             <div className="space-y-3">
-              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" className="h-8 w-full rounded-md border border-border bg-input px-3 font-data text-xs outline-none focus:border-primary" />
-              <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" className="h-8 w-full rounded-md border border-border bg-input px-3 font-data text-xs outline-none focus:border-primary" />
-              <select value={form.role} onChange={e => { const role = e.target.value as Role; setForm(f => ({ ...f, role })); setEditPerms(DEFAULT_PERMISSIONS[role]); }} className="h-8 w-full rounded-md border border-border bg-input px-3 font-data text-xs outline-none focus:border-primary">
+              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" className="h-8 w-full rounded-md border border-border bg-input px-3 font-sans text-xs outline-none focus:border-primary" />
+              <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" className="h-8 w-full rounded-md border border-border bg-input px-3 font-sans text-xs outline-none focus:border-primary" />
+              <select value={form.role} onChange={e => { const role = e.target.value as Role; setForm(f => ({ ...f, role })); setEditPerms(DEFAULT_PERMISSIONS[role]); }} className="h-8 w-full rounded-md border border-border bg-input px-3 font-sans text-xs outline-none focus:border-primary">
                 <option value="ADMIN">Admin</option>
                 <option value="MANAGER">Manager</option>
                 <option value="EXECUTIVE">Executive</option>
                 <option value="VIEWER">Viewer</option>
               </select>
-              {!editId && <input value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Password" type="password" className="h-8 w-full rounded-md border border-border bg-input px-3 font-data text-xs outline-none focus:border-primary" />}
+              {!editId && <input value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Password" type="password" className="h-8 w-full rounded-md border border-border bg-input px-3 font-sans text-xs outline-none focus:border-primary" />}
               {(form.role === 'MANAGER' || form.role === 'VIEWER') && (
                 <div>
-                  <p className="mb-2 font-data text-[10px] uppercase tracking-[2px] text-muted-foreground">Access to Views:</p>
+                  <p className="mb-2 font-sans text-xs uppercase tracking-[2px] text-muted-foreground">Access to Views:</p>
                   <div className="flex flex-wrap gap-2">
                     {Object.values(VIEWS).map(v => (
                       <label key={v} className="flex items-center gap-1 text-xs">
@@ -437,8 +434,8 @@ function UserManagementTab() {
               )}
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button onClick={() => setShowModal(false)} className="rounded-md border border-border px-4 py-2 font-heading text-xs hover:bg-bg-hover">Cancel</button>
-              <button onClick={handleSave} className="rounded-md bg-primary px-4 py-2 font-heading text-xs font-bold text-primary-foreground">Save</button>
+              <button onClick={() => setShowModal(false)} className="rounded-md border border-border px-4 py-2 font-sans text-xs hover:bg-bg-hover">Cancel</button>
+              <button onClick={handleSave} className="rounded-md bg-primary px-4 py-2 font-sans text-xs font-bold text-primary-foreground">Save</button>
             </div>
           </div>
         </div>

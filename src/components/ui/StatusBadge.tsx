@@ -24,7 +24,7 @@ interface StatusBadgeProps {
 export function StatusBadge({ variant, children, className }: StatusBadgeProps) {
   return (
     <span className={cn(
-      'inline-flex items-center rounded-sm px-2 py-0.5 font-data text-[10px] font-medium uppercase tracking-wide',
+      'inline-flex items-center rounded-sm px-2 py-0.5 font-sans text-[10px] font-medium uppercase tracking-wide',
       variantStyles[variant],
       className
     )}>

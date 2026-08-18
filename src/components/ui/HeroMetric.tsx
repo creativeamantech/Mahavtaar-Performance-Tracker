@@ -11,23 +11,22 @@ export function HeroMetric({ pct, label, subLabel }: HeroMetricProps) {
   
   let color = 'hsl(var(--success))'; 
   let textColor = 'text-success';
+
   if (pctValue < 30) {
     color = 'hsl(var(--destructive))';
     textColor = 'text-destructive';
   } else if (pctValue < 60) {
-    color = 'hsl(var(--primary))'; 
-    textColor = 'text-primary';
+    color = 'hsl(var(--warning))'; 
+    textColor = 'text-warning';
   }
 
   const data = [{ name: 'Recovery', value: pctValue, fill: color }];
 
   return (
-    <div className="glass-card relative overflow-hidden p-6 flex flex-col md:flex-row items-center justify-between hover:shadow-[0_8px_32px_rgba(255,255,255,0.02)] transition-all duration-300">
-      <div className="absolute top-0 left-0 bottom-0 w-1 bg-gradient-to-b from-primary/50 to-transparent" />
-      
-      <div className="flex flex-col justify-center mb-6 md:mb-0 pl-2">
-        <h2 className="font-heading text-xl font-bold tracking-wide text-foreground uppercase">{label}</h2>
-        {subLabel && <p className="font-data text-xs text-muted-foreground mt-2 max-w-sm leading-relaxed">{subLabel}</p>}
+    <div className="bg-card border rounded-xl p-6 flex flex-col md:flex-row items-center justify-between shadow-sm">
+      <div className="flex flex-col justify-center mb-6 md:mb-0">
+        <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">{label}</h2>
+        {subLabel && <p className="font-sans text-sm text-muted-foreground mt-1 max-w-sm">{subLabel}</p>}
       </div>
       
       <div className="relative h-28 w-28 shrink-0">
@@ -49,14 +48,14 @@ export function HeroMetric({ pct, label, subLabel }: HeroMetricProps) {
               tick={false}
             />
             <RadialBar
-              background={{ fill: 'rgba(255,255,255,0.03)' }}
+              background={{ fill: 'hsl(var(--muted))' }}
               dataKey="value"
               cornerRadius={6}
             />
           </RadialBarChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex items-center justify-center flex-col">
-          <span className={`font-data text-xl font-bold ${textColor}`}>
+          <span className={`font-sans text-xl font-bold ${textColor}`}>
             {pctValue.toFixed(1)}%
           </span>
         </div>

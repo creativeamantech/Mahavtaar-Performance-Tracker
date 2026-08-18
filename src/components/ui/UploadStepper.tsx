@@ -14,8 +14,8 @@ export function UploadStepper({ steps }: { steps: Step[] }) {
   const [activeStep, setActiveStep] = useState<string>(steps[0].id);
 
   return (
-    <div className="mb-6 glass-panel p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-      <div className="flex w-full items-start gap-4">
+    <div className="mb-6 bg-card border rounded-xl shadow-sm p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+      <div className="flex flex-col md:flex-row w-full items-stretch md:items-start gap-4">
         {steps.map((step, index) => {
           const isActive = activeStep === step.id;
           const isDone = step.status === 'done';
@@ -29,19 +29,19 @@ export function UploadStepper({ steps }: { steps: Step[] }) {
             >
               {/* Connector Line */}
               {index < steps.length - 1 && (
-                <div className="absolute left-[50%] right-[-50%] top-4 h-[1px] bg-[rgba(255,255,255,0.06)] -z-10" />
+                <div className="hidden md:block absolute left-[50%] right-[-50%] top-4 h-[1px] bg-border -z-10" />
               )}
               
               <div className={`cursor-pointer rounded-xl border ${isActive ? 'border-primary/50 bg-[rgba(245,158,11,0.03)] shadow-[0_0_20px_rgba(245,158,11,0.05)]' : 'border-[rgba(255,255,255,0.06)] bg-surface-1'} p-5 flex flex-col items-center justify-center text-center h-full backdrop-blur-md`}>
                 <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-full border ${isDone ? 'border-success bg-success/10 text-success' : isUploading ? 'border-primary bg-primary/10 text-primary' : 'border-[rgba(255,255,255,0.2)] text-muted-foreground'}`}>
-                  {isDone ? <CheckCircle2 className="h-4 w-4" /> : isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="font-heading text-xs font-bold">{index + 1}</span>}
+                  {isDone ? <CheckCircle2 className="h-4 w-4" /> : isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="font-sans text-xs font-bold">{index + 1}</span>}
                 </div>
                 
-                <h4 className={`font-heading text-xs font-bold tracking-wider uppercase mb-1 ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                <h4 className={`font-sans text-xs font-bold tracking-wider uppercase mb-1 ${isActive ? 'text-primary' : 'text-foreground'}`}>
                   {step.title}
                 </h4>
                 
-                <span className="font-data text-[10px] text-muted-foreground mb-3">
+                <span className="font-sans text-[10px] text-muted-foreground mb-3">
                   {step.optional ? '(Optional)' : '(Required)'}
                 </span>
 
@@ -50,7 +50,7 @@ export function UploadStepper({ steps }: { steps: Step[] }) {
                 )}
                 
                 {!isActive && step.lastUpload && (
-                  <div className="font-data text-[10px] text-success flex items-center gap-1 mt-2">
+                  <div className="font-sans text-[10px] text-success flex items-center gap-1 mt-2">
                     <CheckCircle2 className="h-3 w-3" /> {step.lastUpload}
                   </div>
                 )}
@@ -93,7 +93,7 @@ function FileDropzone({ onFileSelect, disabled }: { onFileSelect: (f: File) => v
         }} 
       />
       <UploadCloud className="h-5 w-5 text-muted-foreground mb-1" />
-      <span className="font-data text-[10px] text-muted-foreground">Click or Drop</span>
+      <span className="font-sans text-[10px] text-muted-foreground">Click or Drop</span>
     </div>
   );
 }

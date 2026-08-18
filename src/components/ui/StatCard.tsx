@@ -5,30 +5,17 @@ interface StatCardProps {
   label: string;
   value: string;
   subLabel?: string;
-  accentColor?: 'primary' | 'success' | 'info' | 'destructive';
+  accentColor?: 'primary' | 'success' | 'info' | 'destructive' | 'warning';
   icon?: ReactNode;
   trend?: number[];
 }
-
-const shadowColorMap = {
-  primary: 'hover:shadow-[0_8px_32px_rgba(245,158,11,0.08)]',
-  success: 'hover:shadow-[0_8px_32px_rgba(16,185,129,0.08)]',
-  info: 'hover:shadow-[0_8px_32px_rgba(56,189,248,0.08)]',
-  destructive: 'hover:shadow-[0_8px_32px_rgba(244,63,94,0.08)]',
-};
-
-const gradientMap = {
-  primary: 'from-[hsl(38,92%,50%,0.3)]',
-  success: 'from-[hsl(160,84%,39%,0.3)]',
-  info: 'from-[hsl(217,91%,60%,0.3)]',
-  destructive: 'from-[hsl(0,84%,60%,0.3)]',
-};
 
 const strokeColorMap = {
   primary: 'hsl(var(--primary))',
   success: 'hsl(var(--success))',
   info: 'hsl(var(--info))',
   destructive: 'hsl(var(--destructive))',
+  warning: 'hsl(var(--warning))',
 };
 
 const textColorMap = {
@@ -36,34 +23,38 @@ const textColorMap = {
   success: 'text-success',
   info: 'text-info',
   destructive: 'text-destructive',
+  warning: 'text-warning',
 };
 
 const iconBgMap = {
-  primary: 'bg-primary/10 border-primary/20',
-  success: 'bg-success/10 border-success/20',
-  info: 'bg-info/10 border-info/20',
-  destructive: 'bg-destructive/10 border-destructive/20',
+  primary: 'bg-primary/10 text-primary',
+  success: 'bg-success/10 text-success',
+  info: 'bg-info/10 text-info',
+  destructive: 'bg-destructive/10 text-destructive',
+  warning: 'bg-warning/10 text-warning',
 };
 
 export function StatCard({ label, value, subLabel, accentColor = 'primary', icon, trend }: StatCardProps) {
   const chartData = trend?.map((val, i) => ({ val, index: i })) || [];
+
   return (
-    <div className={`glass-card relative overflow-hidden p-5 hover:-translate-y-1 ${shadowColorMap[accentColor]} transition-all duration-300`}>
-      {/* 1px Gradient Edge */}
-      <div className={`absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r ${gradientMap[accentColor]} to-transparent`} />
-      
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          {icon && (
-            <div className={`flex h-8 w-8 items-center justify-center rounded-md border ${iconBgMap[accentColor]}`}>
-              {icon}
-            </div>
-          )}
-          <span className="font-heading text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/80">{label}</span>
+    <div className={`bg-card rounded-xl border p-5 shadow-sm hover:shadow-md transition-shadow`}>
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex flex-col gap-1">
+          <span className="font-sans text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+          <div className={`font-sans text-2xl font-bold text-foreground`}>{value}</div>
         </div>
-        
+        {icon && (
+          <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBgMap[accentColor]}`}>
+            {icon}
+          </div>
+        )}
+      </div>
+      
+      <div className="flex items-center justify-between h-6">
+        {subLabel && <div className="font-sans text-xs text-muted-foreground">{subLabel}</div>}
         {trend && trend.length > 0 && (
-          <div className="h-6 w-14 opacity-90">
+          <div className="h-6 w-16 opacity-90">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <YAxis domain={['dataMin', 'dataMax']} hide />
@@ -80,9 +71,6 @@ export function StatCard({ label, value, subLabel, accentColor = 'primary', icon
           </div>
         )}
       </div>
-      
-      <div className={`font-data text-2xl font-bold ${textColorMap[accentColor]}`}>{value}</div>
-      {subLabel && <div className="mt-1.5 font-data text-[10px] text-muted-foreground/70">{subLabel}</div>}
     </div>
   );
 }

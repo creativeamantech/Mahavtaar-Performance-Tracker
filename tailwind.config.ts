@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["Syne", "sans-serif"],
-        data: ["DM Mono", "monospace"],
+        sans: ["Inter", "sans-serif"],
+        heading: ["Inter", "sans-serif"],
+        data: ["Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -24,14 +25,11 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        
-        surface: {
-          0: "hsl(var(--surface-0))",
-          1: "hsl(var(--surface-1))",
-          2: "hsl(var(--surface-2))",
-          3: "hsl(var(--surface-3))",
+        sidebar: {
+          DEFAULT: "#111827",
+          foreground: "#F8FAFC",
+          accent: "#1F2937",
         },
-
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -72,7 +70,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        
         bucket: {
           current: "hsl(var(--bucket-current))",
           "1-30": "hsl(var(--bucket-1-30))",
@@ -93,10 +90,6 @@ export default {
         lg: "var(--radius-lg)",
         md: "var(--radius-md)",
         sm: "var(--radius-sm)",
-      },
-      boxShadow: {
-        glass: "0 8px 32px rgba(0, 0, 0, 0.4)",
-        "glass-hover": "0 8px 32px rgba(245, 158, 11, 0.05)",
       },
       keyframes: {
         "accordion-down": {

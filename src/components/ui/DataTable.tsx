@@ -5,7 +5,7 @@ interface Column {
   key: string;
   label: string;
   align?: 'left' | 'right' | 'center';
-  render?: (value: any, row: any) => React.ReactNode;
+  render?: (value: any, row: any, index: number) => React.ReactNode;
   sortable?: boolean;
   width?: string;
 }
@@ -44,15 +44,15 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
   };
 
   return (
-    <div className="glass-panel overflow-hidden rounded-xl">
+    <div className="bg-card border rounded-xl shadow-sm overflow-hidden rounded-xl">
       <div className="overflow-x-auto scrollbar-thin">
-        <table className="w-full font-data text-xs">
+        <table className="w-full font-sans text-xs min-w-[800px]">
           <thead>
-            <tr className="border-b border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.02)]">
+            <tr className="border-b border-border bg-muted/50">
               {columns.map(col => (
                 <th
                   key={col.key}
-                  className={`sticky top-0 whitespace-nowrap px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider text-[10px] ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable !== false ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
+                  className={`sticky top-0 whitespace-nowrap px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider text-xs ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable !== false ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
                   style={col.width ? { width: col.width } : undefined}
                   onClick={() => col.sortable !== false && toggleSort(col.key)}
                 >
@@ -76,11 +76,11 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
                 <tr
                   key={i}
                   onClick={() => onRowClick?.(row)}
-                  className={`border-b border-[rgba(255,255,255,0.04)] transition-colors hover:bg-white/5 ${i % 2 === 0 ? 'bg-transparent' : 'bg-[rgba(255,255,255,0.01)]'} ${onRowClick ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
+                  className={`border-b border-border transition-colors hover:bg-muted ${i % 2 === 0 ? 'bg-transparent' : 'bg-muted/20'} ${onRowClick ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
                 >
                   {columns.map(col => (
                     <td key={col.key} className={`whitespace-nowrap px-4 py-3 ${col.align === 'right' ? 'text-right' : 'text-left'}`}>
-                      {col.render ? col.render(row[col.key], row) : (row[col.key] ?? '—')}
+                      {col.render ? col.render(row[col.key], row, page * pageSize + i) : (row[col.key] ?? '—')}
                     </td>
                   ))}
                 </tr>
@@ -91,11 +91,11 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
       </div>
       {footer}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.01)] px-4 py-3 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-3 text-xs text-muted-foreground">
           <span>Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, data.length)} of {data.length}</span>
           <div className="flex gap-2">
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-md border border-[rgba(255,255,255,0.1)] px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Prev</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="rounded-md border border-[rgba(255,255,255,0.1)] px-3 py-1 font-heading text-[10px] font-bold uppercase tracking-wider hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Next</button>
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-md border border-border px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Prev</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="rounded-md border border-border px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Next</button>
           </div>
         </div>
       )}

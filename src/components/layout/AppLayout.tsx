@@ -1,6 +1,5 @@
 import { ReactNode, useState } from 'react';
 import { AppSidebar } from './AppSidebar';
-import { useAuth } from '../../contexts/AuthContext';
 import { Menu } from 'lucide-react';
 
 export function AppLayout({ children }: { children: ReactNode }) {
@@ -21,20 +20,21 @@ export function AppLayout({ children }: { children: ReactNode }) {
         collapsed={collapsed} 
         setCollapsed={setCollapsed} 
         mobileOpen={mobileOpen}
+         setMobileOpen={setMobileOpen}
       />
       
-      <main className={`flex-1 transition-all duration-300 ease-out ${collapsed ? 'lg:pl-[64px]' : 'lg:pl-[240px]'}`}>
-        <div className="p-4 lg:p-8">
-          <div className="mb-4 flex items-center lg:hidden">
+      <main className={`flex-1 transition-all duration-300 ease-out ${collapsed ? 'lg:pl-[72px]' : 'lg:pl-[260px]'}`}>
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="mb-6 flex items-center lg:hidden">
             <button 
               onClick={() => setMobileOpen(true)}
-              className="mr-3 rounded-md p-2 hover:bg-surface-2"
+              className="mr-3 rounded-md p-2 text-foreground hover:bg-muted"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <span className="font-heading text-sm font-bold tracking-widest text-primary">MAHAVTAAR</span>
+            <span className="font-sans text-sm font-bold tracking-widest text-primary">MAHAVTAAR</span>
           </div>
-          <div className="mx-auto max-w-7xl">
+          <div className="mx-auto max-w-[1600px]">
             {children}
           </div>
         </div>

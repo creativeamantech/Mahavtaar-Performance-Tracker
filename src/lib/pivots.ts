@@ -29,7 +29,7 @@ export function buildCityPivot(records: any[], targets: Record<string, number> =
       rollbackPct: city.totalPOS ? city.rollbackPOS / city.totalPOS : 0,
       target: Math.max(0, city.targetPOS - city.paidPOS),
     };
-  }).sort((a: any, b: any) => b.collection - a.collection);
+  }).sort((a: any, b: any) => b.count - a.count);
 }
 
 export function buildTeamPivot(records: any[], targets: Record<string, number> = {}) {
@@ -69,7 +69,15 @@ export function buildTeamPivot(records: any[], targets: Record<string, number> =
 
 export function buildCrossTab(records: any[], targets: Record<string, number> = {}) {
   const execs = [...new Set(records.map(r => r.executive_name || r['Executive Name'] || 'UNKNOWN'))].sort() as string[];
-  const cities = [...new Set(records.map(r => (r.city || r.City || '').toUpperCase()))].sort() as string[];
+  
+  const cityCounts: Record<string, number> = {};
+  records.forEach(r => {
+    const city = (r.city || r.City || '').toUpperCase();
+    cityCounts[city] = (cityCounts[city] || 0) + 1;
+  });
+  const cities = [...new Set(records.map(r => (r.city || r.City || '').toUpperCase()))]
+    .sort((a, b) => cityCounts[b] - cityCounts[a]) as string[];
+
   const matrix: Record<string, Record<string, { paidPOS: number; totalPOS: number; targetPOS: number; target: number }>> = {};
 
   records.forEach(r => {
