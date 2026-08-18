@@ -61,3 +61,40 @@ class MahavtaarDB extends Dexie {
 }
 
 export const db = new MahavtaarDB();
+
+export async function backupSystemData() {
+  const records = await db.loan_records.toArray();
+  const sessions = await db.upload_sessions.toArray();
+  const audit = await db.audit_log.toArray();
+  const targets = await db.state_targets.toArray();
+  
+  const backup = {
+    timestamp: new Date().toISOString(),
+    version: 1,
+    data: {
+      loan_records: records,
+      upload_sessions: sessions,
+      audit_log: audit,
+      state_targets: targets
+    }
+  };
+  
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mahavtaar_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export async function resetSystemData() {
+  await db.transaction('rw', db.loan_records, db.upload_sessions, db.audit_log, db.state_targets, async () => {
+    await db.loan_records.clear();
+    await db.upload_sessions.clear();
+    await db.audit_log.clear();
+    await db.state_targets.clear();
+  });
+}

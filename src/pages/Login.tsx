@@ -29,7 +29,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen bg-background">
       {/* LEFT: Branding Panel (Desktop Only) */}
-      <div className="hidden lg:flex w-[60%] bg-sidebar flex-col justify-center px-16 relative overflow-hidden">
+      <div className="hidden lg:flex w-[60%] bg-sidebar flex-col justify-center px-16 relative overflow-hidden animate-in fade-in slide-in-from-right-8 duration-700 ease-out fill-mode-both">
         {/* Decorative Grid Background */}
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         
@@ -71,7 +71,7 @@ export default function Login() {
         {/* Mobile/Tablet Background Pattern */}
         <div className="absolute inset-0 lg:hidden opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
 
-        <div className="w-full max-w-[420px] z-10">
+        <div className="w-full max-w-[420px] z-10 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
           <div className="mb-8 text-center flex flex-col items-center lg:hidden">
             <div className="relative flex h-14 w-14 items-center justify-center text-primary mb-4">
               <Hexagon className="absolute inset-0 h-full w-full fill-primary/10 stroke-primary stroke-[1.5]" />

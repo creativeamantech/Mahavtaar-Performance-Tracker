@@ -55,7 +55,7 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
   };
 
   return (
-    <div className="bg-card border rounded-xl shadow-sm overflow-hidden rounded-xl">
+    <div className="glass-panel">
       <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full font-sans text-xs">
           <thead>
@@ -93,7 +93,7 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
                         onRowClick?.(row);
                       }
                     }}
-                    className={`border-b border-border transition-colors hover:bg-muted ${i % 2 === 0 ? 'bg-transparent' : 'bg-muted/20'} ${(onRowClick || (isMobile && columns.some(c => c.hideBelow))) ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
+                    className={`border-b border-border transition-colors hover:bg-muted/50 group ${i % 2 === 0 ? 'bg-transparent' : 'bg-muted/20'} ${(onRowClick || (isMobile && columns.some(c => c.hideBelow))) ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
                   >
                     {columns.map((col, cIdx) => (
                       <td key={col.key} className={`whitespace-nowrap px-4 py-3 ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.hideBelow ? HIDE_CLASS[col.hideBelow] : ''}`}>
@@ -131,8 +131,8 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
         <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-3 text-xs text-muted-foreground">
           <span>Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, data.length)} of {data.length}</span>
           <div className="flex gap-2">
-            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-md border border-border px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Prev</button>
-            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="rounded-md border border-border px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider hover:bg-muted hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Next</button>
+            <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="rounded-md border border-border px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider hover:bg-muted/50 group hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Prev</button>
+            <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="rounded-md border border-border px-3 py-1 font-sans text-xs font-bold uppercase tracking-wider hover:bg-muted/50 group hover:text-foreground disabled:opacity-30 disabled:hover:bg-transparent transition-colors">Next</button>
           </div>
         </div>
       )}

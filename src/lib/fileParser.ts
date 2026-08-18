@@ -14,7 +14,7 @@ export function parseMainFile(fileBuffer: ArrayBuffer) {
     approx_forclosure: parseFloat(row['Approx Forclosure'] || row['approx_forclosure']) || 0,
     state: String(row['State'] || row['state'] || '').trim().toUpperCase(),
     city: String(row['City'] || row['city'] || '').trim().toUpperCase(),
-    executive_name: String(row['Final Executive Name'] || row['final_executive_name'] || row['Final Executive'] || row['final_executive'] || row['Executive Name'] || row['executive_name'] || row['Executive'] || row['executive'] || '').trim(),
+    executive_name: String(row['Final EX. Name'] || row['Final EX. name'] || row['Final EX.NAME'] || row['EX. Name'] || row['EX. name'] || row['EX.NAME'] || row['Final Executive Name'] || row['final_executive_name'] || row['Final Executive'] || row['final_executive'] || row['Executive Name'] || row['executive_name'] || row['Executive'] || row['executive'] || '').trim(),
     allocation_date: row['Final Allocation Date'] || row['final_allocation_date'] || row['Allocation Date'] || row['allocation_date'] || row['AllocationDate'] || null,
     dac: parseFloat(row['DAC'] || row['dac']) || 0,
     ecs: parseFloat(row['ECS'] || row['ecs']) || 0,

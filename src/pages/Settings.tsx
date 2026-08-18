@@ -15,10 +15,77 @@ import { cn } from '../lib/utils';
 
 import { TargetInput } from '../components/TargetInput';
 import { buildTargetKey, findMatchingRecordsCountAccurate } from '../lib/targets';
-import { db } from '../lib/db';
+import { db, backupSystemData, resetSystemData } from '../lib/db';
+
+
+function SystemTab() {
+  const [isResetting, setIsResetting] = useState(false);
+  
+  const handleBackup = async () => {
+    try {
+      await backupSystemData();
+      toast.success('System backup downloaded successfully');
+    } catch (e) {
+      toast.error('Failed to create backup');
+    }
+  };
+
+  const handleReset = async () => {
+    if (confirm('WARNING: This will delete ALL records, targets, and audit logs. This cannot be undone. Type "RESET" to confirm.')) {
+      const p = prompt('Type RESET to confirm:');
+      if (p === 'RESET') {
+        setIsResetting(true);
+        try {
+          await resetSystemData();
+          toast.success('System has been completely reset.');
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } catch(e) {
+          toast.error('Failed to reset system.');
+          setIsResetting(false);
+        }
+      }
+    }
+  };
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
+  return (
+    <div className="space-y-6 max-w-3xl">
+      <div className="glass-panel p-6">
+        <h2 className="text-lg font-bold mb-2">System Backup</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Download a complete JSON snapshot of all system data, including records, targets, and audit logs.
+        </p>
+        <Button onClick={handleBackup} variant="outline" className="w-48">Download Backup</Button>
+      </div>
+
+      <div className="glass-panel p-6">
+        <h2 className="text-lg font-bold mb-2">Refresh System Data</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Force reload the application to apply the latest changes or newly uploaded data immediately.
+        </p>
+        <Button onClick={handleRefresh} variant="secondary" className="w-48">Refresh App</Button>
+      </div>
+
+      <div className="glass-panel p-6 border-destructive/20">
+        <h2 className="text-lg font-bold text-destructive mb-2">Factory Reset</h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Permanently delete all data from the local database. You should take a backup first.
+        </p>
+        <Button onClick={handleReset} variant="destructive" disabled={isResetting} className="w-48">
+          {isResetting ? 'Resetting...' : 'Reset Everything'}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState<'targets' | 'users'>('targets');
+  const [tab, setTab] = useState<'targets' | 'users' | 'system'>('targets');
 
   return (
     <AppLayout>
@@ -36,9 +103,15 @@ export default function SettingsPage() {
           onClick={() => setTab('users')}
           className={`rounded-md px-4 py-2 font-sans text-xs font-bold transition-colors ${tab === 'users' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
         >User Management</button>
+        <button
+          onClick={() => setTab('system')}
+          className={`rounded-md px-4 py-2 font-sans text-xs font-bold transition-colors ${tab === 'system' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >System</button>
       </div>
 
-      {tab === 'targets' ? <StateTargetsTab /> : <UserManagementTab />}
+      {tab === 'targets' && <StateTargetsTab />}
+      {tab === 'users' && <UserManagementTab />}
+      {tab === 'system' && <SystemTab />}
     </AppLayout>
   );
 }

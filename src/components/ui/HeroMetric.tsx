@@ -23,7 +23,7 @@ export function HeroMetric({ pct, label, subLabel }: HeroMetricProps) {
   const data = [{ name: 'Recovery', value: pctValue, fill: color }];
 
   return (
-    <div className="bg-card border rounded-xl p-6 flex flex-col items-center text-center md:flex-row md:items-center md:text-left justify-between shadow-sm border-l-4 border-l-success">
+    <div className="bg-card border border-border rounded-xl p-6 flex flex-col items-center text-center md:flex-row md:items-center md:text-left justify-between shadow-[0_2px_10px_-3px_rgba(6,81,237,0.03)] border-l-[3px] border-l-success transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="flex flex-col justify-center mb-6 md:mb-0">
         <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">{label}</h2>
         {subLabel && <p className="font-sans text-sm text-muted-foreground mt-1 max-w-sm">{subLabel}</p>}
