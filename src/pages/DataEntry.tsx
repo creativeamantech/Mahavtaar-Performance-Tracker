@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
-import { UploadZone } from '../components/ui/UploadZone';
+import { UploadStepper } from '../components/ui/UploadStepper';
 import { DataTable } from '../components/ui/DataTable';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { useData } from '../contexts/DataContext';
@@ -221,13 +221,41 @@ export default function DataEntry() {
         )}
       </div>
 
-      {/* Upload Zones */}
-      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <UploadZone title="Main Data File" onFileSelect={handleMainUpload} lastUpload={lastMain} />
-        <UploadZone title="Paid File" onFileSelect={handlePaidUpload} lastUpload={lastPaid} />
-        <UploadZone title="Additional Collection" onFileSelect={handleAdditionalUpload} lastUpload={lastAdditional} />
-        <UploadZone title="Corrected DAC" onFileSelect={handleCorrectedUpload} lastUpload={lastCorrected} />
-      </div>
+      {/* Upload Workflow */}
+      <UploadStepper steps={[
+        {
+          id: 'step-1',
+          title: 'Main Data File',
+          optional: false,
+          status: lastMain ? 'done' : 'pending',
+          lastUpload: lastMain?.fileName,
+          onFileSelect: handleMainUpload
+        },
+        {
+          id: 'step-2',
+          title: 'Paid File',
+          optional: false,
+          status: lastPaid ? 'done' : 'pending',
+          lastUpload: lastPaid?.fileName,
+          onFileSelect: handlePaidUpload
+        },
+        {
+          id: 'step-3',
+          title: 'Additional Collection',
+          optional: true,
+          status: lastAdditional ? 'done' : 'pending',
+          lastUpload: lastAdditional?.fileName,
+          onFileSelect: handleAdditionalUpload
+        },
+        {
+          id: 'step-4',
+          title: 'Corrected DAC',
+          optional: true,
+          status: lastCorrected ? 'done' : 'pending',
+          lastUpload: lastCorrected?.fileName,
+          onFileSelect: handleCorrectedUpload
+        }
+      ]} />
 
       {/* Filters */}
       <div className="mb-4 flex flex-wrap items-center gap-3">

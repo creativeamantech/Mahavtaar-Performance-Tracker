@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { parseMainFile, parsePaidFile, mergePaidIntoRecords, parseAdditionalFile, mergeAdditionalIntoRecords, parseCorrectedFile, mergeCorrectedIntoRecords } from '../lib/fileParser';
+import { supabase } from '../lib/supabase';
 
 export interface AuditEntry {
   id: string;
@@ -40,6 +41,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [uploadHistory, setUploadHistory] = useState<any[]>([]);
 
+  // We are keeping local state fallback since Supabase requires environment credentials
+  // The structure here supports the requested Supabase flow when configured.
+
   useEffect(() => {
     localStorage.setItem('app_targets', JSON.stringify(targets));
   }, [targets]);
@@ -49,19 +53,33 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setRecords(parsed);
     const entry = { id: crypto.randomUUID(), type: 'MAIN_DATA', fileName, recordCount: parsed.length, uploadedBy: userName, createdAt: new Date().toISOString() };
     setUploadHistory(prev => [entry, ...prev]);
+    
+    // Supabase upsert logic (enabled when configured)
+    if (import.meta.env.VITE_SUPABASE_URL) {
+      supabase.from('loan_records').upsert(parsed, { onConflict: 'agreementid' }).then();
+      supabase.from('upload_sessions').insert([entry]).then();
+    }
+    
     return { rowCount: parsed.length };
   }, []);
 
   const loadPaidFile = useCallback((buffer: ArrayBuffer, fileName: string, userName: string) => {
     const paidRows = parsePaidFile(buffer);
     let matched = 0;
+    let mergedData: any[] = [];
     setRecords(prev => {
-      const merged = mergePaidIntoRecords(prev, paidRows);
+      mergedData = mergePaidIntoRecords(prev, paidRows);
       matched = paidRows.filter(p => prev.some(r => r.agreementid === p.agreementid)).length;
-      return merged;
+      return mergedData;
     });
     const entry = { id: crypto.randomUUID(), type: 'PAID_FILE', fileName, recordCount: paidRows.length, uploadedBy: userName, createdAt: new Date().toISOString() };
     setUploadHistory(prev => [entry, ...prev]);
+    
+    if (import.meta.env.VITE_SUPABASE_URL) {
+      supabase.from('loan_records').upsert(mergedData, { onConflict: 'agreementid' }).then();
+      supabase.from('upload_sessions').insert([entry]).then();
+    }
+    
     return { matched, total: paidRows.length }; 
   }, []);
 
@@ -69,27 +87,46 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const additionalRows = parseAdditionalFile(buffer);
     let matched = 0;
     let finalStats: any = {};
+    let mergedData: any[] = [];
+    
     setRecords(prev => {
       const { merged, stats } = mergeAdditionalIntoRecords(prev, additionalRows);
+      mergedData = merged;
       matched = additionalRows.filter(p => prev.some(r => r.agreementid === p.agreementid)).length;
       finalStats = stats;
       return merged;
     });
+    
     const entry = { id: crypto.randomUUID(), type: 'ADDITIONAL_COLLECTION_FILE', fileName, recordCount: additionalRows.length, uploadedBy: userName, createdAt: new Date().toISOString() };
     setUploadHistory(prev => [entry, ...prev]);
+    
+    if (import.meta.env.VITE_SUPABASE_URL) {
+      supabase.from('loan_records').upsert(mergedData, { onConflict: 'agreementid' }).then();
+      supabase.from('upload_sessions').insert([entry]).then();
+    }
+    
     return { matched, total: additionalRows.length, stats: finalStats };
   }, []);
 
   const loadCorrectedFile = useCallback((buffer: ArrayBuffer, fileName: string, userName: string) => {
     const correctedRows = parseCorrectedFile(buffer);
     let matchCount = 0;
+    let mergedData: any[] = [];
     setRecords(prev => {
       const { merged, matched } = mergeCorrectedIntoRecords(prev, correctedRows);
+      mergedData = merged;
       matchCount = matched;
       return merged;
     });
+    
     const entry = { id: crypto.randomUUID(), type: 'CORRECTED_DAC_FILE', fileName, recordCount: correctedRows.length, uploadedBy: userName, createdAt: new Date().toISOString() };
     setUploadHistory(prev => [entry, ...prev]);
+    
+    if (import.meta.env.VITE_SUPABASE_URL) {
+      supabase.from('loan_records').upsert(mergedData, { onConflict: 'agreementid' }).then();
+      supabase.from('upload_sessions').insert([entry]).then();
+    }
+    
     return { matched: matchCount, total: correctedRows.length };
   }, []);
 
@@ -97,7 +134,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setRecords(prev => prev.map(r => {
       if (r.agreementid === agreementid) {
         const oldValue = String(r[field] ?? '');
-        setAuditLog(a => [{
+        const audit = {
           id: crypto.randomUUID(),
           agreementid,
           field,
@@ -106,7 +143,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
           changedBy: userName,
           createdAt: new Date().toISOString(),
           source: 'MANUAL',
-        }, ...a]);
+        };
+        setAuditLog(a => [audit, ...a]);
+        
+        if (import.meta.env.VITE_SUPABASE_URL) {
+          supabase.from('loan_records').update({ [field]: value }).eq('agreementid', agreementid).then();
+          supabase.from('audit_log').insert([audit]).then();
+        }
+        
         return { ...r, [field]: value, [`${field}_source`]: 'MANUAL' };
       }
       return r;
@@ -114,7 +158,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setTarget = useCallback((key: string, pct: number, _userName: string) => {
-    setTargets(prev => ({ ...prev, [key]: pct }));
+    setTargets(prev => {
+      const next = { ...prev, [key]: pct };
+      if (import.meta.env.VITE_SUPABASE_URL) {
+        supabase.from('state_targets').upsert({ id: key, pct }).then();
+      }
+      return next;
+    });
   }, []);
 
   return (

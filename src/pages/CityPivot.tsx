@@ -100,7 +100,19 @@ export default function CityPivot() {
     { key: 'city', label: 'City', render: (v: string) => <span className="font-medium">{v}</span> },
     { key: 'state', label: 'State', render: (v: string) => <span className="text-muted-foreground text-[11px]">{v}</span> },
     { key: 'collection', label: 'Collection', align: 'right' as const, render: (v: number) => <span className="text-primary">{fmtCur(v)}</span> },
-    { key: 'pct', label: 'Sum of %', align: 'right' as const, render: (v: number) => <span className={pctColor(v)}>{fmtPct(v)}</span> },
+    { key: 'pct', label: 'Sum of %', align: 'right' as const, render: (v: number, row: any) => {
+      const isAchieved = row.target <= 0;
+      const pctValue = Math.min(v * 100, 100);
+      const barColor = isAchieved ? 'bg-success' : 'bg-primary';
+      return (
+        <div className="flex items-center justify-end gap-2">
+          <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[rgba(255,255,255,0.06)]">
+            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pctValue}%` }} />
+          </div>
+          <span className={`w-12 text-right font-bold ${pctColor(v)}`}>{fmtPct(v)}</span>
+        </div>
+      );
+    } },
     { key: 'rollbackPct', label: 'Rollback %', align: 'right' as const, render: (v: number) => <span className="text-info">{fmtPct(v)}</span> },
     { key: 'count', label: 'Total Count', align: 'right' as const },
     { key: 'totalPOS', label: 'Total POS', align: 'right' as const, render: (v: number) => fmtCur(v) },
