@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 5%;
+    --foreground: 214 32% 91%;
+
+    --card: 220 33% 10%;
+    --card-foreground: 214 32% 91%;
+
+    --popover: 220 33% 10%;
+    --popover-foreground: 214 32% 91%;
+
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 214 32% 91%;
+
+    --muted: 215 28% 17%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 0%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 0%;
+
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 213 30% 18%;
+    --border-light: 211 27% 24%;
+    --input: 220 33% 8%;
+    --ring: 38 92% 50%;
+
+    --radius: 0.5rem;
+
+    --bg-hover: 218 30% 16%;
+
+    --sidebar-background: 220 33% 8%;
+    --sidebar-foreground: 214 32% 91%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 218 30% 16%;
+    --sidebar-accent-foreground: 38 92% 50%;
+    --sidebar-border: 213 30% 18%;
+    --sidebar-ring: 38 92% 50%;
+
+    --accent-dim: 30 79% 27%;
+    --success-dim: 163 86% 16%;
+    --danger-dim: 0 63% 31%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Mono', monospace;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
+  }
+}
+
+@layer components {
+  .font-heading {
+    font-family: 'Syne', sans-serif;
+  }
+
+  .font-data {
+    font-family: 'DM Mono', monospace;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--border)) 0%,
+      hsl(var(--border-light)) 50%,
+      hsl(var(--border)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}
