@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ChevronUp, ChevronDown, ChevronRight } from 'lucide-react';
+import { useMediaQuery } from '../../hooks/use-media-query';
 
 interface Column {
+  hideBelow?: 'sm' | 'md' | 'lg' | 'xl';
   key: string;
   label: string;
   align?: 'left' | 'right' | 'center';
@@ -19,7 +21,16 @@ interface DataTableProps {
   footer?: React.ReactNode;
 }
 
+const HIDE_CLASS: Record<string, string> = {
+  sm: 'hidden sm:table-cell',
+  md: 'hidden md:table-cell',
+  lg: 'hidden lg:table-cell',
+  xl: 'hidden xl:table-cell',
+};
+
 export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassName, footer }: DataTableProps) {
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const [expandedRow, setExpandedRow] = useState<number | null>(null);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(0);
@@ -46,13 +57,13 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
   return (
     <div className="bg-card border rounded-xl shadow-sm overflow-hidden rounded-xl">
       <div className="overflow-x-auto scrollbar-thin">
-        <table className="w-full font-sans text-xs min-w-[800px]">
+        <table className="w-full font-sans text-xs">
           <thead>
             <tr className="border-b border-border bg-muted/50">
               {columns.map(col => (
                 <th
                   key={col.key}
-                  className={`sticky top-0 whitespace-nowrap px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider text-xs ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable !== false ? 'cursor-pointer select-none hover:text-foreground' : ''}`}
+                  className={`sticky top-0 whitespace-nowrap px-4 py-3 font-medium text-muted-foreground uppercase tracking-wider text-xs ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.sortable !== false ? 'cursor-pointer select-none hover:text-foreground' : ''} ${col.hideBelow ? HIDE_CLASS[col.hideBelow] : ''}`}
                   style={col.width ? { width: col.width } : undefined}
                   onClick={() => col.sortable !== false && toggleSort(col.key)}
                 >
@@ -73,17 +84,43 @@ export function DataTable({ columns, data, pageSize = 50, onRowClick, rowClassNa
               </tr>
             ) : (
               paged.map((row, i) => (
-                <tr
-                  key={i}
-                  onClick={() => onRowClick?.(row)}
-                  className={`border-b border-border transition-colors hover:bg-muted ${i % 2 === 0 ? 'bg-transparent' : 'bg-muted/20'} ${onRowClick ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
-                >
-                  {columns.map(col => (
-                    <td key={col.key} className={`whitespace-nowrap px-4 py-3 ${col.align === 'right' ? 'text-right' : 'text-left'}`}>
-                      {col.render ? col.render(row[col.key], row, page * pageSize + i) : (row[col.key] ?? '—')}
-                    </td>
-                  ))}
-                </tr>
+                <React.Fragment key={i}>
+                  <tr
+                    onClick={() => {
+                      if (isMobile && columns.some(c => c.hideBelow)) {
+                        setExpandedRow(expandedRow === i ? null : i);
+                      } else {
+                        onRowClick?.(row);
+                      }
+                    }}
+                    className={`border-b border-border transition-colors hover:bg-muted ${i % 2 === 0 ? 'bg-transparent' : 'bg-muted/20'} ${(onRowClick || (isMobile && columns.some(c => c.hideBelow))) ? 'cursor-pointer' : ''} ${rowClassName?.(row) || ''}`}
+                  >
+                    {columns.map((col, cIdx) => (
+                      <td key={col.key} className={`whitespace-nowrap px-4 py-3 ${col.align === 'right' ? 'text-right' : 'text-left'} ${col.hideBelow ? HIDE_CLASS[col.hideBelow] : ''}`}>
+                        {cIdx === 0 && isMobile && columns.some(c => c.hideBelow) && (
+                          <ChevronRight className={`inline-block w-4 h-4 mr-2 transition-transform ${expandedRow === i ? 'rotate-90' : ''}`} />
+                        )}
+                        {col.render ? col.render(row[col.key], row, page * pageSize + i) : (row[col.key] ?? '—')}
+                      </td>
+                    ))}
+                  </tr>
+                  {expandedRow === i && isMobile && (
+                    <tr className="bg-muted/10 border-b border-border">
+                      <td colSpan={columns.length} className="px-4 py-3">
+                        <div className="flex flex-col gap-2 pl-6">
+                          {columns.filter(c => c.hideBelow).map(col => (
+                            <div key={col.key} className="flex justify-between items-start border-b border-border/50 pb-2 last:border-0 last:pb-0">
+                              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{col.label}</span>
+                              <span className="text-right text-xs">
+                                {col.render ? col.render(row[col.key], row, page * pageSize + i) : (row[col.key] ?? '—')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))
             )}
           </tbody>

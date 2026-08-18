@@ -8,7 +8,10 @@ import { Download, PieChart, Shield, Target } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { StatCard } from '../components/ui/StatCard';
 
+import { useMediaQuery } from '../hooks/use-media-query';
+
 export default function CityTeamMatrix() {
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const { records, targets, isLoading } = useData();
 
   const [selectedState, setSelectedState] = useState<string>('All');
@@ -155,7 +158,12 @@ export default function CityTeamMatrix() {
             <Download className="h-3.5 w-3.5" /> Export
           </button>
         </div>
-      </div>      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-5 bg-card border rounded-xl shadow-sm p-4 rounded-xl">
+      </div>      {isMobile && (
+        <div className="mb-4 rounded-md border border-warning/50 bg-warning/10 p-3 text-xs text-warning">
+          <strong>Note:</strong> The Matrix view is optimized for tablets and larger screens. Please scroll horizontally to view all data.
+        </div>
+      )}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-5 bg-card border rounded-xl shadow-sm p-4 rounded-xl">
         <div>
           <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
           <Select value={selectedState} onValueChange={setSelectedState}>

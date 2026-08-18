@@ -3,6 +3,7 @@ import { useData } from '../contexts/DataContext';
 import { AppLayout } from '../components/layout/AppLayout';
 import { StatCard } from '../components/ui/StatCard';
 import { HeroMetric } from '../components/ui/HeroMetric';
+import { useMediaQuery } from '../hooks/use-media-query';
 import { calculateRow } from '../lib/calculations';
 import { buildCityPivot } from '../lib/pivots';
 import { DataTable } from '../components/ui/DataTable';
@@ -18,6 +19,7 @@ import {
 } from 'recharts';
 
 export default function Dashboard() {
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const { records, targets, isLoading } = useData();
   const [globalBucket, setGlobalBucket] = useState<string>('ALL');
 
@@ -195,34 +197,34 @@ export default function Dashboard() {
         </div>
 
         {/* KPI 2 - Rollback % */}
-        <StatCard label="Rollback %" value={fmtPct(rollbackPct)} subLabel={`${fmtCur(stats.rollbackPOS)} out of ${fmtCur(stats.totalPOS)}`} accentColor="destructive" icon={<RotateCcw className="h-4 w-4" />} />
+        <StatCard size={isMobile ? 'sm' : 'default'} label="Rollback %" value={fmtPct(rollbackPct)} subLabel={`${fmtCur(stats.rollbackPOS)} out of ${fmtCur(stats.totalPOS)}`} accentColor="destructive" icon={<RotateCcw className="h-4 w-4" />} />
         
         {/* KPI 3 - Needed POS */}
-        <StatCard label="Needed POS" value={fmtCur(neededPOS)} subLabel="Amount required to hit target" accentColor="warning" icon={<Target className="h-4 w-4" />} />
+        <StatCard size={isMobile ? 'sm' : 'default'} label="Needed POS" value={fmtCur(neededPOS)} subLabel="Amount required to hit target" accentColor="warning" icon={<Target className="h-4 w-4" />} />
         
         {/* KPI 4 - Paid POS */}
-        <StatCard label="Paid POS" value={fmtCur(stats.paidPOS)} subLabel="Total recovered amount" accentColor="success" icon={<DollarSign className="h-4 w-4" />} />
+        <StatCard size={isMobile ? 'sm' : 'default'} label="Paid POS" value={fmtCur(stats.paidPOS)} subLabel="Total recovered amount" accentColor="success" icon={<DollarSign className="h-4 w-4" />} />
       </div>
 
       <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
         <div className="col-span-3 rounded-xl border border-border bg-card p-5 shadow-sm">
           <h3 className="mb-4 font-sans text-sm font-bold uppercase tracking-wider text-muted-foreground">Top Priority Cities (By Case Count)</h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={chartData} layout="vertical" margin={{ left: 60, right: 10 }}>
+          <ResponsiveContainer width="100%" height={isMobile ? 220 : 280}>
+            <BarChart data={chartData} layout="vertical" margin={{ left: isMobile ? 40 : 60, right: isMobile ? 30 : 10 }}>
               <XAxis type="number" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} tick={{ fill: 'hsl(215,16%,47%)', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(215,16%,47%)', fontSize: 10, fontFamily: 'Inter' }} width={80} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(215,16%,47%)', fontSize: 10, fontFamily: 'Inter' }} width={isMobile ? 60 : 80} axisLine={false} tickLine={false} />
               <Tooltip formatter={(v) => [fmtCur(v), 'Collection']} contentStyle={{ background: 'white', border: '1px solid hsl(var(--border))', borderRadius: 6, fontSize: 12, color: 'black', fontFamily: 'Inter' }} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />
               <Bar dataKey="collection" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={16} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="col-span-2 rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col">
+        <div className="col-span-2 rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col order-first lg:order-last">
           <h3 className="mb-4 font-sans text-sm font-bold uppercase tracking-wider text-muted-foreground">Paid vs Unpaid (Count)</h3>
           <div className="flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={85} dataKey="value" stroke="none">
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={isMobile ? 50 : 60} outerRadius={isMobile ? 70 : 85} dataKey="value" stroke="none">
                   <Cell fill="hsl(var(--success))" />
                   <Cell fill="hsl(var(--destructive))" />
                   <Label 

@@ -8,6 +8,7 @@ import { buildCityPivot } from '../lib/pivots';
 import { fmtCur, fmtPct, pctColor, targetColor } from '../lib/formatters';
 import { exportCityPivot } from '../lib/exporter';
 import { Download } from 'lucide-react';
+import { ResponsiveFilter } from '../components/ui/ResponsiveFilter';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 export default function CityPivot() {
@@ -96,10 +97,10 @@ export default function CityPivot() {
   const gPct = grandTotal.totalPOS ? grandTotal.paidPOS / grandTotal.totalPOS : 0;
 
   const columns = [
-    { key: '_idx', label: 'Rank', width: '40px', sortable: false, render: (_: any, __: any, index: number) => <span className="font-bold text-muted-foreground">{index + 1}</span> },
+    { key: '_idx', label: 'Rank', width: '40px', hideBelow: 'lg' as const, sortable: false, render: (_: any, __: any, index: number) => <span className="font-bold text-muted-foreground">{index + 1}</span> },
     { key: 'city', label: 'City', render: (v: string) => <span className="font-medium">{v}</span> },
-    { key: 'state', label: 'State', render: (v: string) => <span className="text-muted-foreground text-[11px]">{v}</span> },
-    { key: 'collection', label: 'Collection', align: 'right' as const, render: (v: number) => <span className="text-primary">{fmtCur(v)}</span> },
+    { key: 'state', label: 'State', hideBelow: 'md' as const, render: (v: string) => <span className="text-muted-foreground text-[11px]">{v}</span> },
+    { key: 'collection', label: 'Collection', align: 'right' as const, hideBelow: 'md' as const, render: (v: number) => <span className="text-primary">{fmtCur(v)}</span> },
     { key: 'pct', label: 'Sum of %', align: 'right' as const, render: (v: number, row: any) => {
       const isAchieved = row.target <= 0;
       const pctValue = Math.min(v * 100, 100);
@@ -115,10 +116,10 @@ export default function CityPivot() {
     } },
     { key: 'rollbackPct', label: 'Rollback %', align: 'right' as const, render: (v: number) => <span className="text-info">{fmtPct(v)}</span> },
     { key: 'count', label: 'Total Count', align: 'right' as const },
-    { key: 'totalPOS', label: 'Total POS', align: 'right' as const, render: (v: number) => fmtCur(v) },
+    { key: 'totalPOS', label: 'Total POS', align: 'right' as const, hideBelow: 'lg' as const, render: (v: number) => fmtCur(v) },
     { key: 'paid', label: 'Total Paid', align: 'right' as const, render: (v: number) => <span className="text-success">{v}</span> },
     { key: 'paidPOS', label: 'Total Paid POS', align: 'right' as const, render: (v: number) => fmtCur(v) },
-    { key: 'target', label: 'Needed POS', align: 'right' as const, render: (v: number) => (
+    { key: 'target', label: 'Needed POS', align: 'right' as const, hideBelow: 'sm' as const, render: (v: number) => (
       v <= 0 ? <StatusBadge variant="paid">✓ Achieved</StatusBadge> : <span className={targetColor(v)}>{fmtCur(v)}</span>
     )},
   ];
@@ -154,34 +155,14 @@ export default function CityPivot() {
         </button>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 bg-card border rounded-xl shadow-sm p-4 rounded-xl">
-        <div>
-          <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
-          <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger className="h-10 bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent px-3 font-sans text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All States" /></SelectTrigger>
-            <SelectContent className="bg-card border-[rgba(255,255,255,0.08)] text-foreground">
-              {availableStates.map(s => <SelectItem key={s} value={s} className="hover:bg-primary/20 hover:text-primary">{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">Bucket</label>
-          <Select value={selectedBucket} onValueChange={setSelectedBucket}>
-            <SelectTrigger className="h-10 bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent px-3 font-sans text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Buckets" /></SelectTrigger>
-            <SelectContent className="bg-card border-[rgba(255,255,255,0.08)] text-foreground">
-              {availableBuckets.map(b => <SelectItem key={b} value={b} className="hover:bg-primary/20 hover:text-primary">{b === 'All' ? 'All' : `Bucket ${b}`}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">City</label>
-          <Select value={selectedCity} onValueChange={setSelectedCity}>
-            <SelectTrigger className="h-10 bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent px-3 font-sans text-xs border-[rgba(255,255,255,0.08)] bg-transparent"><SelectValue placeholder="All Cities" /></SelectTrigger>
-            <SelectContent className="bg-card border-[rgba(255,255,255,0.08)] text-foreground">
-              {availableCities.map(c => <SelectItem key={c} value={c} className="hover:bg-primary/20 hover:text-primary">{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="bg-card border rounded-xl shadow-sm p-4 mb-6">
+        <ResponsiveFilter
+          filters={[
+            { id: 'state', label: 'State', value: selectedState, onChange: setSelectedState, options: availableStates.map(s => ({ value: s, label: s })) },
+            { id: 'bkt', label: 'Bucket', value: selectedBucket, onChange: setSelectedBucket, options: availableBuckets.map(s => ({ value: s, label: s === 'All' ? 'All' : `Bucket ${s}` })) },
+            { id: 'city', label: 'City', value: selectedCity, onChange: setSelectedCity, options: availableCities.map(s => ({ value: s, label: s })) },
+          ]}
+        />
       </div>
 
       <DataTable

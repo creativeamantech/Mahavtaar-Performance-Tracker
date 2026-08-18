@@ -74,6 +74,7 @@ export default function TeamPivot() {
 
       <div className="bg-card border rounded-xl shadow-sm overflow-hidden rounded-xl">
         <div className="overflow-x-auto scrollbar-thin">
+        <div className="overflow-x-auto scrollbar-thin">
         <table className="w-full font-sans text-xs min-w-[1000px]">
           <thead>
             <tr className="border-b border-border bg-muted/50">
@@ -150,6 +151,7 @@ export default function TeamPivot() {
             </tr>
           </tbody>
         </table>
+      </div>
         </div>
       </div>
     </AppLayout>

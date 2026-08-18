@@ -1,44 +1,38 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { AppSidebar } from './AppSidebar';
-import { Menu } from 'lucide-react';
+import { MobileHeader } from './MobileHeader';
+import { BottomNav } from './BottomNav';
+import { useMediaQuery } from '../../hooks/use-media-query';
 
 export function AppLayout({ children }: { children: ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+  const [collapsed, setCollapsed] = useState(!isDesktop);
+  
+  useEffect(() => {
+    setCollapsed(!isDesktop);
+  }, [isDesktop]);
+
   const [mobileOpen, setMobileOpen] = useState(false);
   
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Mobile Backdrop */}
-      {mobileOpen && (
-        <div 
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden" 
-          onClick={() => setMobileOpen(false)}
+      <div className="hidden md:block">
+        <AppSidebar 
+          collapsed={collapsed} 
+          setCollapsed={setCollapsed} 
+          mobileOpen={mobileOpen} 
+          setMobileOpen={setMobileOpen} 
         />
-      )}
-      
-      <AppSidebar 
-        collapsed={collapsed} 
-        setCollapsed={setCollapsed} 
-        mobileOpen={mobileOpen}
-         setMobileOpen={setMobileOpen}
-      />
-      
-      <main className={`flex-1 transition-all duration-300 ease-out ${collapsed ? 'lg:pl-[72px]' : 'lg:pl-[260px]'}`}>
-        <div className="p-4 sm:p-6 lg:p-8">
-          <div className="mb-6 flex items-center lg:hidden">
-            <button 
-              onClick={() => setMobileOpen(true)}
-              className="mr-3 rounded-md p-2 text-foreground hover:bg-muted"
-            >
-              <Menu className="h-5 w-5" />
-            </button>
-            <span className="font-sans text-sm font-bold tracking-widest text-primary">MAHAVTAAR</span>
-          </div>
-          <div className="mx-auto max-w-[1600px]">
+      </div>
+      <div className={`flex flex-1 flex-col transition-all duration-300 ease-out md:ml-[72px] ${collapsed ? 'lg:ml-[72px]' : 'lg:ml-[260px]'}`}>
+        <MobileHeader />
+        <main className="mobile-main-content flex-1 pb-16 md:pb-0">
+          <div className="mx-auto max-w-[1600px] p-4 sm:p-5 lg:p-8">
             {children}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+      <BottomNav />
     </div>
   );
 }

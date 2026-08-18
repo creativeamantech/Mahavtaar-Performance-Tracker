@@ -23,13 +23,13 @@ export function HeroMetric({ pct, label, subLabel }: HeroMetricProps) {
   const data = [{ name: 'Recovery', value: pctValue, fill: color }];
 
   return (
-    <div className="bg-card border rounded-xl p-6 flex flex-col md:flex-row items-center justify-between shadow-sm">
+    <div className="bg-card border rounded-xl p-6 flex flex-col items-center text-center md:flex-row md:items-center md:text-left justify-between shadow-sm border-l-4 border-l-success">
       <div className="flex flex-col justify-center mb-6 md:mb-0">
         <h2 className="font-sans text-xl font-bold tracking-tight text-foreground">{label}</h2>
         {subLabel && <p className="font-sans text-sm text-muted-foreground mt-1 max-w-sm">{subLabel}</p>}
       </div>
       
-      <div className="relative h-28 w-28 shrink-0">
+      <div className="relative h-[100px] w-[100px] md:h-28 md:w-28 shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart 
             cx="50%" 

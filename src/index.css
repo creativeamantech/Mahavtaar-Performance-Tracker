@@ -35,6 +35,7 @@
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
     --radius: var(--radius-md);
+    --nav-mobile-bg: 17 24% 9%; /* #111827 equivalent */
 
     /* Bucket Colors */
     --bucket-current: 160 84% 39%;
@@ -88,5 +89,24 @@
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
+  }
+}
+
+@supports (padding: max(0px)) {
+  .bottom-nav {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  .mobile-main-content {
+    padding-bottom: max(64px, calc(64px + env(safe-area-inset-bottom)));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .animate-pulse {
+    animation-duration: 2s !important;
   }
 }

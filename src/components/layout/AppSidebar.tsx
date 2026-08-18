@@ -37,13 +37,7 @@ export function AppSidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen 
   const location = useLocation();
 
   return (
-    <aside
-      className={`fixed left-0 top-0 z-40 flex h-screen flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 ease-out 
-      ${collapsed ? 'w-[72px]' : 'w-[260px]'}
-      ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      shadow-xl lg:shadow-none
-      `}
-    >
+    <aside className={`fixed left-0 top-0 z-40 flex h-screen flex-col bg-sidebar text-sidebar-foreground transition-all duration-300 ease-out ${collapsed ? 'w-[72px]' : 'w-[260px]'} shadow-xl md:shadow-none`}>
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-3 px-4">
         <div className="relative flex h-8 w-8 shrink-0 items-center justify-center text-accent">
@@ -75,7 +69,7 @@ export function AppSidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen 
                 return (
                   <Link
                     key={item.path}
-                    to={item.path}
+                    to={item.path} title={collapsed ? item.label : undefined}
                     onClick={() => setMobileOpen(false)}
                     className={`mb-1 flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                       active
@@ -126,7 +120,7 @@ export function AppSidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen 
           </button>
           <button
             onClick={() => setCollapsed(c => !c)}
-            className="hidden lg:flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+            className="hidden lg:flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors" aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>

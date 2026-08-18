@@ -171,7 +171,7 @@ function StateTargetsTab() {
         <h2 className="mb-3 font-sans text-sm font-bold uppercase tracking-wider">Target Configuration</h2>
         <p className="mb-4 font-sans text-xs text-muted-foreground">Target = (Total POS × X%) − Main Paid POS</p>
         
-        <div className="mb-6 grid grid-cols-1 gap-4 bg-card border rounded-xl shadow-sm rounded-xl p-5 sm:grid-cols-4">
+        <div className="mb-6 flex flex-col sm:grid sm:grid-cols-4 gap-4 bg-card border rounded-xl shadow-sm p-4 sm:p-5">
           <div>
             <label className="mb-2 block font-sans text-xs font-bold text-muted-foreground uppercase tracking-[0.15em]">State</label>
             <Popover open={openState} onOpenChange={setOpenState}>
