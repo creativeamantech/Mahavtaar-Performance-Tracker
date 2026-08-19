@@ -2,6 +2,7 @@
 import { Hexagon } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { ThemeToggle } from '../ThemeToggle';
 
 const PAGE_TITLES: Record<string, string> = {
   '/dashboard': 'Dashboard',
@@ -27,7 +28,9 @@ export function MobileHeader() {
         </div>
         <h1 className="font-sans text-sm font-bold uppercase tracking-wider text-foreground">{title}</h1>
       </div>
-      {user && (
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        {user && (
         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
           user.role === 'ADMIN' ? 'bg-primary text-primary-foreground' :
           user.role === 'MANAGER' ? 'bg-info text-info-foreground' :
@@ -37,6 +40,7 @@ export function MobileHeader() {
           {user.role}
         </span>
       )}
+      </div>
     </div>
   );
 }

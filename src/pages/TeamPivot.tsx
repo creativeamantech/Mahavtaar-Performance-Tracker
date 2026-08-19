@@ -6,6 +6,7 @@ import { buildTeamPivot } from '../lib/pivots';
 import { fmtCur, fmtPct, pctColor } from '../lib/formatters';
 import { exportTeamPivot } from '../lib/exporter';
 import { Download } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function TeamPivot() {
   const { records, targets, isLoading } = useData();

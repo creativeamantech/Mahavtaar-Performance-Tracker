@@ -11,7 +11,7 @@ export function buildCityPivot(records: any[], targets: Record<string, number> =
     if (!map[city]) map[city] = { city, state, collection: 0, count: 0, totalPOS: 0, paid: 0, paidPOS: 0, rollbackPOS: 0, targetPOS: 0 };
     
     const posVal = Number(r.principal_outstanding) || 0;
-    map[city].collection += Number(r.dac ?? r.DAC) || 0;
+    if (c.mainPaid === 1) { map[city].collection += Number(r.dac ?? r.DAC) || 0; }
     map[city].count += 1;
     map[city].totalPOS += posVal;
     if (c.mainPaid === 1) map[city].paid += 1;

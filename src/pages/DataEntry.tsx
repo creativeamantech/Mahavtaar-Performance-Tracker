@@ -18,6 +18,7 @@ export default function DataEntry() {
   const [bucketFilter, setBucketFilter] = useState('all');
   const [paidFilter, setPaidFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
+  const [conflictFilter, setConflictFilter] = useState('all');
 
   const filteredRecords = useMemo(() => {
     let data = records;
@@ -34,8 +35,9 @@ export default function DataEntry() {
       });
     }
     if (cityFilter !== 'all') data = data.filter(r => r.city === cityFilter);
+    if (conflictFilter !== 'all') data = data.filter(r => conflictFilter === 'conflict' ? r.is_conflict : !r.is_conflict);
     return data;
-  }, [records, search, bucketFilter, paidFilter, cityFilter, user, isExecutive]);
+  }, [records, search, bucketFilter, paidFilter, cityFilter, conflictFilter, user, isExecutive]);
 
   const cities = useMemo(() => [...new Set(records.map(r => r.city))].sort(), [records]);
 
@@ -108,24 +110,31 @@ export default function DataEntry() {
     toast.success(`Saved ✓`);
   }, [updateRecord, user]);
 
-  const exportConflicts = useCallback(() => {
-    const conflicts = records.filter(r => r.is_conflict);
-    if (conflicts.length === 0) {
-      toast.info('No conflicts to export');
+  const exportFilteredData = useCallback(() => {
+    if (filteredRecords.length === 0) {
+      toast.info('No data to export');
       return;
     }
-    const data = conflicts.map(r => ({
-      'Loan ID': r.agreementid,
-      'Executive Name': r.executive_name,
-      'Collection Date': r.provisional_collection_dates || '',
-      'Current Confirmed DAC': r.dac || 0,
-      'Provisional DAC': r.provisional_dac_raw || 0,
-      'Status': 'Conflict - Needs Review'
-    }));
+    const data = filteredRecords.map(r => {
+      const c = calculateRow(r);
+      return {
+        'Loan ID': r.agreementid,
+        'Customer Name': r.customer_name || '',
+        'City': r.city || '',
+        'Executive Name': r.executive_name || '',
+        'BOM Bkt': r.bom_bkt,
+        'BOM POS': r.bom_pos,
+        'Target POS': c.targetPOS,
+        'Collected Amount': c.collection,
+        'Confirmed DAC': r.dac || 0,
+        'Provisional DAC': r.provisional_dac || 0,
+        'Status': r.is_conflict ? 'Conflict' : (c.mainPaid ? 'Paid' : 'Unpaid'),
+      };
+    });
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Conflicts');
-    XLSX.writeFile(wb, `Conflicts_${new Date().toISOString().split('T')[0]}.xlsx`);
-  }, [records]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), 'Export');
+    XLSX.writeFile(wb, `DataExport_${new Date().toISOString().split('T')[0]}.xlsx`);
+  }, [filteredRecords]);
 
   const lastMain = uploadHistory.find(u => u.type === 'MAIN_DATA');
   const lastPaid = uploadHistory.find(u => u.type === 'PAID_FILE');
@@ -214,11 +223,9 @@ export default function DataEntry() {
           <h1 className="font-sans text-xl font-extrabold uppercase tracking-wide">Data Entry</h1>
           <p className="font-sans text-xs text-muted-foreground">Upload files & manage payment data</p>
         </div>
-        {hasConflicts && (
-          <button onClick={exportConflicts} className="flex h-9 items-center gap-2 rounded-md bg-destructive px-4 font-sans text-xs font-bold text-destructive-foreground hover:bg-destructive/90">
-            <Download className="h-3.5 w-3.5" /> Export Conflicts
-          </button>
-        )}
+        <button onClick={exportFilteredData} className="flex h-9 items-center gap-2 rounded-md bg-primary px-4 font-sans text-xs font-bold text-primary-foreground hover:bg-primary/90">
+          <Download className="h-3.5 w-3.5" /> Export Data
+        </button>
       </div>
 
       {/* Upload Workflow */}
@@ -281,9 +288,14 @@ export default function DataEntry() {
           <option value="all">All Cities</option>
           {cities.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
+        <select value={conflictFilter} onChange={e => setConflictFilter(e.target.value)} className="h-9 w-full sm:w-auto bg-background border rounded-md px-3 py-1 text-sm focus:border-accent focus:ring-1 focus:ring-accent font-sans text-xs outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer">
+          <option value="all">All Items</option>
+          <option value="conflict">Conflicted Only</option>
+          <option value="clean">Non-Conflicted</option>
+        </select>
 
-        {(search || bucketFilter !== 'all' || paidFilter !== 'all' || cityFilter !== 'all') && (
-          <button onClick={() => { setSearch(''); setBucketFilter('all'); setPaidFilter('all'); setCityFilter('all'); }}
+        {(search || bucketFilter !== 'all' || paidFilter !== 'all' || cityFilter !== 'all' || conflictFilter !== 'all') && (
+          <button onClick={() => { setSearch(''); setBucketFilter('all'); setPaidFilter('all'); setCityFilter('all'); setConflictFilter('all'); }}
             className="flex h-9 items-center gap-1.5 rounded-md border border-[rgba(255,255,255,0.1)] bg-white/5 px-3 font-sans text-xs text-muted-foreground hover:bg-white/10 hover:text-foreground transition-colors">
             <X className="h-3.5 w-3.5" /> Reset
           </button>

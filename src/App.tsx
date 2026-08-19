@@ -1,3 +1,4 @@
+import { ThemeProvider } from "./contexts/ThemeContext";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -9,6 +10,7 @@ import DataEntry from "./pages/DataEntry";
 import CityPivot from "./pages/CityPivot";
 import TeamPivot from "./pages/TeamPivot";
 import CityTeamMatrix from "./pages/CityTeamMatrix";
+import DataExplorer from "./pages/DataExplorer";
 import SettingsPage from "./pages/Settings";
 import AuditLog from "./pages/AuditLog";
 import NotFound from "./pages/NotFound";
@@ -29,6 +31,7 @@ function AppRoutes() {
       <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path="/dashboard" element={<ProtectedRoute view={VIEWS.DASHBOARD}><Dashboard /></ProtectedRoute>} />
       <Route path="/data-entry" element={<ProtectedRoute view={VIEWS.DATA_ENTRY}><DataEntry /></ProtectedRoute>} />
+      <Route path="/explorer" element={<ProtectedRoute view={VIEWS.DATA_EXPLORER}><DataExplorer /></ProtectedRoute>} />
       <Route path="/city-pivot" element={<ProtectedRoute view={VIEWS.CITY_PIVOT}><CityPivot /></ProtectedRoute>} />
       <Route path="/team-pivot" element={<ProtectedRoute view={VIEWS.TEAM_PIVOT}><TeamPivot /></ProtectedRoute>} />
       <Route path="/matrix" element={<ProtectedRoute view={VIEWS.CITY_TEAM_MATRIX}><CityTeamMatrix /></ProtectedRoute>} />
@@ -41,6 +44,7 @@ function AppRoutes() {
 }
 
 const App = () => (
+  <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
   <AuthProvider>
     <DataProvider>
       <TooltipProvider>
@@ -51,6 +55,7 @@ const App = () => (
       </TooltipProvider>
     </DataProvider>
   </AuthProvider>
+  </ThemeProvider>
 );
 
 export default App;

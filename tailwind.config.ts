@@ -16,8 +16,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
-        heading: ["Inter", "sans-serif"],
-        data: ["Inter", "sans-serif"],
+        heading: ["Geist", "sans-serif"],
+        data: ["Geist", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

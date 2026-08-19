@@ -1,36 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../contexts/DataContext';
 import { AppLayout } from '../components/layout/AppLayout';
-import { StatCard } from '../components/ui/StatCard';
-import { HeroMetric } from '../components/ui/HeroMetric';
 import { useMediaQuery } from '../hooks/use-media-query';
 import { calculateRow } from '../lib/calculations';
 import { buildCityPivot } from '../lib/pivots';
-import { DataTable } from '../components/ui/DataTable';
-import { fmtCur, fmtPct, pctColor } from '../lib/formatters';
-import {
-  DollarSign, TrendingUp, Shield, RotateCcw,
-  UploadCloud, PieChart as PieChartIcon, Target, Filter
-} from 'lucide-react';
+import { buildTargetKey } from '../lib/targets';
+import { fmtCur, fmtPct } from '../lib/formatters';
+import { DollarSign, TrendingUp, Filter, Target, UploadCloud } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Label
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Dashboard() {
   const isMobile = useMediaQuery('(max-width: 767px)');
   const { records, targets, isLoading } = useData();
-  const [globalBucket, setGlobalBucket] = useState<string>('ALL');
-
+  const { globalBucket } = useData();
   
-  const availableBuckets = useMemo(() => {
-    const bkts = new Set<string>();
-    (records || []).forEach((r: any) => {
-      if (r.bom_bkt) bkts.add(String(r.bom_bkt).trim().toUpperCase());
-    });
-    return Array.from(bkts).sort();
-  }, [records]);
+
 
   const filteredRecords = useMemo(() => {
     if (!records) return [];
@@ -42,15 +27,17 @@ export default function Dashboard() {
     return filteredRecords.reduce((acc, row) => {
       const c = calculateRow(row);
       acc.total += 1;
-      acc.totalCollection += (Number(row.dac ?? row.DAC) || 0);
+      if (c.mainPaid === 1) { acc.totalCollection += (Number(row.dac ?? row.DAC) || 0); }
       const pos = Number(row.principal_outstanding) || 0;
       acc.totalPOS += pos;
+      
       if (c.mainPaid === 1) {
         acc.mainPaidCount += 1;
         acc.paidPOS += c.mainPaidPOS || 0;
       } else {
         acc.unpaidCount += 1;
       }
+      
       acc.rollbackPOS += c.rollbackPOS || 0;
       return acc;
     }, {
@@ -68,29 +55,16 @@ export default function Dashboard() {
     });
     return { cityPivot: pivot, totalTargetPOS: totalTarget };
   }, [filteredRecords, targets]);
-
   
   if (isLoading) {
     return (
       <AppLayout>
         <div className="animate-pulse">
           <div className="mb-6 flex items-center justify-between">
-            <div>
-              <div className="h-6 w-32 rounded bg-muted"></div>
-              <div className="mt-2 h-3 w-24 rounded bg-muted/50"></div>
-            </div>
+            <div className="h-6 w-32 rounded bg-muted"></div>
             <div className="h-10 w-40 rounded-md bg-muted"></div>
           </div>
           <div className="mb-6 h-[100px] rounded-xl bg-card border border-border shadow-sm"></div>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-28 rounded-xl bg-card border border-border shadow-sm"></div>
-            ))}
-          </div>
-          <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
-            <div className="col-span-3 h-80 rounded-xl bg-card border border-border shadow-sm"></div>
-            <div className="col-span-2 h-80 rounded-xl bg-card border border-border shadow-sm"></div>
-          </div>
         </div>
       </AppLayout>
     );
@@ -103,7 +77,7 @@ export default function Dashboard() {
           <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-card border border-border shadow-sm">
             <UploadCloud className="h-10 w-10 text-primary opacity-80" />
           </div>
-          <h2 className="mb-2 font-sans text-2xl font-bold text-foreground">No Data Available</h2>
+          <h2 className="mb-2 font-heading text-2xl font-bold text-foreground">No Data Available</h2>
           <p className="mb-8 max-w-md font-sans text-sm text-muted-foreground leading-relaxed">
             Upload your Main Allocation file to initialize the dashboard and begin tracking performance.
           </p>
@@ -117,12 +91,11 @@ export default function Dashboard() {
       </AppLayout>
     );
   }
-
   
-  const paidPct = stats.totalPOS ? stats.paidPOS / stats.totalPOS : 0;
-  const rollbackPct = stats.totalPOS ? stats.rollbackPOS / stats.totalPOS : 0;
+  // No rollback
   const neededPOS = Math.max(0, totalTargetPOS - stats.paidPOS);
   const targetAchievedPct = totalTargetPOS > 0 ? Math.min(stats.paidPOS / totalTargetPOS, 1) : (stats.paidPOS > 0 ? 1 : 0);
+  const actualPct = stats.totalPOS > 0 ? stats.paidPOS / stats.totalPOS : 0;
 
   const topCitiesByCount = [...cityPivot].sort((a, b) => b.count - a.count).slice(0, 10);
   const chartData = topCitiesByCount.map(c => ({ name: c.city, count: c.count, collection: c.collection }));
@@ -132,129 +105,185 @@ export default function Dashboard() {
     { name: 'Unpaid', value: stats.unpaidCount },
   ];
 
-  const cityColumns = [
-    { key: 'rank', label: 'Rank', align: 'center' as const, render: (_v: any, _r: any, idx: number) => <span className="font-bold text-muted-foreground">{idx + 1}</span> },
-    { key: 'city', label: 'City' },
-    { key: 'count', label: 'Total Cases', align: 'right' as const, render: (v: number) => <span className="font-bold text-foreground">{v}</span> },
-    { key: 'collection', label: 'Collection', align: 'right' as const, render: (v: number) => <span className="text-primary font-bold">{fmtCur(v)}</span> },
-    { key: 'totalPOS', label: 'Total POS', align: 'right' as const, render: (v: number) => fmtCur(v) },
-    { key: 'target', label: 'Needed POS', align: 'right' as const, render: (v: number) => v <= 0 ? <span className="text-success text-xs uppercase font-bold">Achieved</span> : <span className="text-warning font-medium">{fmtCur(v)}</span> },
-  ];
-
   return (
     <AppLayout>
-      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-sans text-xl font-extrabold uppercase tracking-wide text-foreground">Dashboard</h1>
-          <p className="font-sans text-xs text-muted-foreground mt-1">{filteredRecords.length} records in view</p>
-        </div>
-        
-        <div className="flex items-center gap-2 bg-card border rounded-md p-1 shadow-sm w-full sm:w-auto overflow-hidden">
-          <div className="flex items-center gap-2 px-3 border-r border-border">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filter Bucket</span>
-          </div>
-          <select 
-            value={globalBucket} 
-            onChange={(e) => setGlobalBucket(e.target.value)}
-            className="h-8 bg-transparent text-sm font-semibold pl-2 pr-8 outline-none cursor-pointer hover:bg-muted/50 rounded flex-1 appearance-none"
-          >
-            <option value="ALL">ALL BUCKETS</option>
-            {availableBuckets.map(b => (
-              <option key={b} value={b}>BUCKET {b}</option>
-            ))}
-          </select>
-        </div>
-      </div>
+
 
       {filteredRecords.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
             <Filter className="h-8 w-8" />
           </div>
-          <h3 className="font-sans text-lg font-bold text-foreground">No data available for this bucket</h3>
+          <h3 className="font-heading text-lg font-bold text-foreground">No data available for this bucket</h3>
           <p className="mt-1 text-sm text-muted-foreground">Select a different bucket to view performance metrics.</p>
         </div>
       ) : (
         <>
-          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* KPI 1 - Achieved vs Target */}
-        <div className="glass-card p-5 relative overflow-hidden group">
-          <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-          <div className="flex items-start justify-between mb-2">
-            <h3 className="font-heading text-xs font-bold uppercase tracking-wider text-muted-foreground">Achieved vs Target</h3>
-            <Target className="h-4 w-4 text-primary opacity-50" />
-          </div>
-          <div className="flex items-end gap-2 mb-3">
-            <span className="font-data text-2xl font-bold text-foreground">{fmtPct(targetAchievedPct)}</span>
-            <span className="font-heading text-[10px] uppercase font-bold text-success mb-1">Achieved</span>
-          </div>
-          <div className="space-y-1 mt-2 border-t border-[rgba(255,255,255,0.05)] pt-2">
-            <div className="flex justify-between font-data text-[11px]"><span className="text-muted-foreground">Target:</span> <span className="font-medium">{fmtCur(totalTargetPOS)}</span></div>
-            <div className="flex justify-between font-data text-[11px]"><span className="text-muted-foreground">Achieved:</span> <span className="font-medium text-success">{fmtCur(stats.paidPOS)}</span></div>
-            <div className="flex justify-between font-data text-[11px]"><span className="text-muted-foreground">Gap:</span> <span className="font-medium text-destructive">{fmtCur(neededPOS)}</span></div>
-          </div>
-        </div>
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+            {/* KPI 1 - Recovery % */}
+            <div className="bg-card border border-border rounded-xl p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recovery Rate</h3>
+                <span className="bg-success/10 text-success px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3" /> {fmtPct(actualPct)}
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2 mt-auto">
+                <span className="font-heading text-4xl font-bold text-foreground">{(actualPct * 100).toFixed(1)}</span>
+                <span className="font-sans text-lg font-semibold text-muted-foreground">%</span>
+              </div>
+              <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden mt-4">
+                <div className="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(actualPct * 100, 100)}%` }}></div>
+              </div>
+            </div>
 
-        {/* KPI 2 - Rollback % */}
-        <StatCard size={isMobile ? 'sm' : 'default'} label="Rollback %" value={fmtPct(rollbackPct)} subLabel={`${fmtCur(stats.rollbackPOS)} out of ${fmtCur(stats.totalPOS)}`} accentColor="destructive" icon={<RotateCcw className="h-4 w-4" />} />
-        
-        {/* KPI 3 - Needed POS */}
-        <StatCard size={isMobile ? 'sm' : 'default'} label="Needed POS" value={fmtCur(neededPOS)} subLabel="Amount required to hit target" accentColor="warning" icon={<Target className="h-4 w-4" />} />
-        
-        {/* KPI 4 - Paid POS */}
-        <StatCard size={isMobile ? 'sm' : 'default'} label="Paid POS" value={fmtCur(stats.paidPOS)} subLabel="Total recovered amount" accentColor="success" icon={<DollarSign className="h-4 w-4" />} />
-      </div>
+            {/* KPI 2 - Recovered POS */}
+            <div className="bg-card border border-border rounded-xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider">Paid POS</h3>
+                <DollarSign className="h-4 w-4 text-success" />
+              </div>
+              <div className="flex flex-col mt-auto">
+                <span className="font-heading text-2xl lg:text-3xl font-bold text-success">{fmtCur(stats.paidPOS)}</span>
+                <p className="font-sans text-xs text-muted-foreground mt-1">Total POS of Main Paid cases</p>
+              </div>
+            </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
-        <div className="col-span-3 rounded-xl border border-border bg-card p-5 shadow-sm">
-          <h3 className="mb-4 font-sans text-sm font-bold uppercase tracking-wider text-muted-foreground">Top Priority Cities (By Case Count)</h3>
-          <ResponsiveContainer width="100%" height={isMobile ? 220 : 280}>
-            <BarChart data={chartData} layout="vertical" margin={{ left: isMobile ? 40 : 60, right: isMobile ? 30 : 10 }}>
-              <XAxis type="number" tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} tick={{ fill: 'hsl(215,16%,47%)', fontSize: 10 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(215,16%,47%)', fontSize: 10, fontFamily: 'Inter' }} width={isMobile ? 60 : 80} axisLine={false} tickLine={false} />
-              <Tooltip formatter={(v) => [fmtCur(v), 'Collection']} contentStyle={{ background: 'white', border: '1px solid hsl(var(--border))', borderRadius: 6, fontSize: 12, color: 'black', fontFamily: 'Inter' }} cursor={{ fill: 'rgba(0,0,0,0.05)' }} />
-              <Bar dataKey="collection" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={16} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+            {/* KPI 3 - Needed POS */}
+            <div className="bg-card border border-border rounded-xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-all">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="font-sans text-xs font-semibold text-muted-foreground uppercase tracking-wider">Needed POS</h3>
+                <Target className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex flex-col mt-auto">
+                <span className="font-heading text-2xl lg:text-3xl font-bold text-foreground">{fmtCur(neededPOS)}</span>
+                <p className="font-sans text-xs text-muted-foreground mt-1">To reach target</p>
+              </div>
+            </div>
 
-        <div className="col-span-2 rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col order-first lg:order-last">
-          <h3 className="mb-4 font-sans text-sm font-bold uppercase tracking-wider text-muted-foreground">Paid vs Unpaid (Count)</h3>
-          <div className="flex-1 min-h-[200px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={isMobile ? 50 : 60} outerRadius={isMobile ? 70 : 85} dataKey="value" stroke="none">
-                  <Cell fill="hsl(var(--success))" />
-                  <Cell fill="hsl(var(--destructive))" />
-                  <Label 
-                    value={`${((stats.mainPaidCount / (stats.total || 1)) * 100).toFixed(1)}%`} 
-                    position="center" 
-                    fill="hsl(var(--foreground))" 
-                    style={{ fontSize: '24px', fontWeight: 'bold', fontFamily: 'Inter' }}
+            {/* KPI 4 - Total Collection */}
+            <div className="bg-primary border border-primary/20 rounded-xl p-5 flex flex-col justify-between shadow-md text-primary-foreground hover:shadow-lg transition-all transform hover:-translate-y-1">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="font-sans text-xs font-semibold text-primary-foreground/80 uppercase tracking-wider">Total Collection</h3>
+                <DollarSign className="h-5 w-5 text-primary-foreground/80" />
+              </div>
+              <div className="flex flex-col mt-auto">
+                <span className="font-heading text-2xl lg:text-3xl font-bold">{fmtCur(stats.totalCollection)}</span>
+                <p className="font-sans text-xs text-primary-foreground/80 mt-1">DAC from Main Paid cases</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-1 bg-card border border-border rounded-xl p-5 shadow-sm flex flex-col">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="font-heading text-lg font-bold text-foreground">Paid vs Unpaid</h3>
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center relative min-h-[200px]">
+                <div className="w-40 h-40 relative flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        <Cell key="cell-0" fill="hsl(var(--primary))" />
+                        <Cell key="cell-1" fill="hsl(var(--muted-foreground))" opacity={0.2} />
+                      </Pie>
+                      <Tooltip formatter={(value: number) => [value, 'Cases']} contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="font-heading text-2xl font-bold text-foreground">{((stats.mainPaidCount / stats.total) * 100).toFixed(0)}%</span>
+                    <span className="font-sans text-xs text-muted-foreground">Paid</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 flex flex-col gap-3">
+                <div className="flex justify-between items-center text-sm font-sans">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-primary"></span>
+                    <span className="text-foreground">Paid Cases</span>
+                  </div>
+                  <span className="font-semibold text-foreground">{stats.mainPaidCount}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm font-sans">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-muted-foreground/30"></span>
+                    <span className="text-muted-foreground">Unpaid Cases</span>
+                  </div>
+                  <span className="font-semibold text-muted-foreground">{stats.unpaidCount}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-2 bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col">
+              <div className="p-4 sm:p-5 border-b border-border flex justify-between items-center bg-muted/10">
+                <h3 className="font-heading text-lg font-bold text-foreground">Top 10 City Snapshot</h3>
+                <Link to="/city-pivot" className="font-sans text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+                  View All &rarr;
+                </Link>
+              </div>
+              <div className="overflow-x-auto flex-1">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-muted/30 border-b border-border">
+                      <th className="p-3 font-sans text-xs text-muted-foreground font-semibold">City Name</th>
+                      <th className="p-3 font-sans text-xs text-muted-foreground font-semibold text-right">Cases</th>
+                      <th className="p-3 font-sans text-xs text-muted-foreground font-semibold text-right">Paid Cases</th>
+                      <th className="p-3 font-sans text-xs text-muted-foreground font-semibold text-right">Sum of %</th>
+                      <th className="p-3 font-sans text-xs text-muted-foreground font-semibold text-right">Needed</th>
+                      <th className="p-3 font-sans text-xs text-muted-foreground font-semibold text-right">Collection</th>
+                    </tr>
+                  </thead>
+                  <tbody className="font-data text-sm">
+                    {topCitiesByCount.map((city) => {
+                      const posPct = city.pct;
+                      return (
+                        <tr key={city.city} className="border-b border-border hover:bg-muted/20 transition-colors">
+                          <td className="p-3 text-primary font-semibold hover:underline"><Link to={`/explorer?city=${encodeURIComponent(city.city)}`}>{city.city}</Link></td>
+                          <td className="p-3 text-right text-foreground">{city.count}</td>
+                          <td className="p-3 text-right text-foreground">{city.paid}</td>
+                          <td className="p-3 text-right text-foreground font-bold">{fmtPct(posPct)}</td>
+                          <td className="p-3 text-right text-warning">{fmtCur(city.target)}</td>
+                          <td className="p-3 text-right text-success">{fmtCur(city.collection)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section className="bg-card border border-border rounded-xl p-5 shadow-sm flex flex-col mb-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="font-heading text-lg font-bold text-foreground">Collection Volume (Top Cities)</h3>
+                <p className="font-sans text-xs text-muted-foreground mt-1">Total collection values by region</p>
+              </div>
+            </div>
+            <div className="w-full h-64 relative overflow-hidden">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} dy={10} />
+                  <YAxis hide />
+                  <Tooltip 
+                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.4 }} 
+                    contentStyle={{ borderRadius: '8px', border: '1px solid hsl(var(--border))', fontSize: '12px', fontWeight: 'bold' }} 
+                    formatter={(val: number) => fmtCur(val)} 
                   />
-                </Pie>
-                <Tooltip contentStyle={{ background: 'white', border: '1px solid hsl(var(--border))', borderRadius: 6, fontSize: 12, color: 'black', fontFamily: 'Inter' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex justify-center gap-6 text-xs mt-2 font-medium">
-            <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success" /> Paid ({stats.mainPaidCount})</span>
-            <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" /> Unpaid ({stats.unpaidCount})</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="font-sans text-sm font-bold uppercase tracking-wider text-foreground">Top 10 Priority City Snapshot</h3>
-            <p className="text-xs text-muted-foreground mt-1">Ranked by case volume</p>
-          </div>
-          <Link to="/city-pivot" className="rounded-md border px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-muted">View Full Report →</Link>
-        </div>
-        <DataTable columns={cityColumns} data={topCitiesByCount} pageSize={10} />
-      </div>
+                  <Bar dataKey="collection" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
         </>
       )}
     </AppLayout>

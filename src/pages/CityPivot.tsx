@@ -8,6 +8,7 @@ import { buildCityPivot } from '../lib/pivots';
 import { fmtCur, fmtPct, pctColor, targetColor } from '../lib/formatters';
 import { exportCityPivot } from '../lib/exporter';
 import { Download } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { ResponsiveFilter } from '../components/ui/ResponsiveFilter';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
@@ -98,7 +99,7 @@ export default function CityPivot() {
 
   const columns = [
     { key: '_idx', label: 'Rank', width: '40px', hideBelow: 'lg' as const, sortable: false, render: (_: any, __: any, index: number) => <span className="font-bold text-muted-foreground">{index + 1}</span> },
-    { key: 'city', label: 'City', render: (v: string) => <span className="font-medium">{v}</span> },
+    { key: 'city', label: 'City', render: (v: string) => <Link to={`/explorer?city=${encodeURIComponent(v)}`} className="font-medium text-primary hover:underline">{v}</Link> },
     { key: 'state', label: 'State', hideBelow: 'md' as const, render: (v: string) => <span className="text-muted-foreground text-[11px]">{v}</span> },
     { key: 'collection', label: 'Collection', align: 'right' as const, hideBelow: 'md' as const, render: (v: number) => <span className="text-primary">{fmtCur(v)}</span> },
     { key: 'pct', label: 'Sum of %', align: 'right' as const, render: (v: number, row: any) => {

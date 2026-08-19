@@ -6,6 +6,8 @@ export function parseMainFile(fileBuffer: ArrayBuffer) {
 
   return rows.map(row => ({
     agreementid: String(row['agreementid'] || row['AGREEMENTID'] || '').trim(),
+    agreement_no: String(row['AGREEMENTNO'] || row['AGREEMENT_NO'] || row['Agreement No'] || row['agreement_no'] || row['loan_id'] || '').trim(),
+    customer_name: String(row['CUSTOMERNAME'] || row['Customer Name'] || row['CUSTOMER_NAME'] || row['customer_name'] || row['customername'] || '').trim(),
     bom_bkt: parseInt(row['bom_bkt']) || 1,
     emi_amt: parseFloat(row['emi_amt']) || 0,
     principal_outstanding: parseFloat(row['principal_outstanding']) || 0,

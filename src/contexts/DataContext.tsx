@@ -14,6 +14,8 @@ interface DataContextType {
   loadCorrectedFile: (buffer: ArrayBuffer, fileName: string, userName: string) => Promise<{ matched: number; total: number }>;
   updateRecord: (agreementid: string, field: string, value: any, userName: string) => Promise<void>;
   setTarget: (key: string, pct: number, userName: string) => Promise<void>;
+  globalBucket: string;
+  setGlobalBucket: (val: string) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -23,6 +25,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [targets, setTargets] = useState<Record<string, number>>({});
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [uploadHistory, setUploadHistory] = useState<UploadSession[]>([]);
+  const [globalBucket, setGlobalBucket] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState(true);
 
   // Load from Dexie on mount
@@ -185,7 +188,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ isLoading, records, targets, auditLog, uploadHistory, loadMainFile, loadPaidFile, loadAdditionalFile, loadCorrectedFile, updateRecord, setTarget }}>
+    <DataContext.Provider value={{ isLoading, records, targets, auditLog, uploadHistory, loadMainFile, loadPaidFile, loadAdditionalFile, loadCorrectedFile, updateRecord, setTarget, globalBucket, setGlobalBucket }}>
       {children}
     </DataContext.Provider>
   );
